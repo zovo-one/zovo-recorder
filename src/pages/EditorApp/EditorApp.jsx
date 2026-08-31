@@ -1,5 +1,6 @@
 import "./styles/edit/_VideoPlayer.scss";
 import "./styles/global/_app.scss";
+import "./styles/global/_ZvrFeatures.scss";
 
 import React, { useEffect, useRef, useContext, Suspense, lazy } from "react";
 // Editor (trim/cut/timeline UI) only mounts when user enters edit mode.
@@ -10,7 +11,6 @@ import Modal from "./components/global/Modal";
 import Toast from "./components/global/Toast";
 
 import HelpButton from "./components/player/HelpButton";
-import ReviewBanner from "./components/global/ReviewBanner";
 
 import { ContentStateContext } from "./context/ContentState";
 import { diagForward } from "../utils/diagForward";
@@ -60,7 +60,7 @@ const EditorApp = () => {
 
     const elements = parentDiv.querySelectorAll("*");
     elements.forEach((element) => {
-      element.classList.add("screenity-scrollbar");
+      element.classList.add("zvrrec-scrollbar");
     });
 
     const observer = new MutationObserver((mutationsList) => {
@@ -71,13 +71,13 @@ const EditorApp = () => {
 
           addedNodes.forEach((node) => {
             if (node.nodeType === Node.ELEMENT_NODE) {
-              node.classList.add("screenity-scrollbar");
+              node.classList.add("zvrrec-scrollbar");
             }
           });
 
           removedNodes.forEach((node) => {
             if (node.nodeType === Node.ELEMENT_NODE) {
-              node.classList.remove("screenity-scrollbar");
+              node.classList.remove("zvrrec-scrollbar");
             }
           });
         }
@@ -202,12 +202,9 @@ const EditorApp = () => {
           </Suspense>
         )}
       {contentState.mode != "edit" && contentState.ready && <Player />}
-      {!contentState.ready &&
-        new URLSearchParams(window.location.search).get("reviewPreview") !==
-          null && <ReviewBanner />}
       {!contentState.ready && (
         <div className="wrap">
-          <img className="logo" src="/assets/logo-text.svg" />
+          <img className="logo" src="/assets/brand/wordmark.svg" />
           <div className="middle-area">
             <img src="/assets/record-tab-active.svg" />
             <div className="title">
@@ -335,24 +332,24 @@ const EditorApp = () => {
 					}
 
 
-.screenity-scrollbar *::-webkit-scrollbar, .screenity-scrollbar::-webkit-scrollbar {
+.zvrrec-scrollbar *::-webkit-scrollbar, .zvrrec-scrollbar::-webkit-scrollbar {
   background-color: rgba(0,0,0,0);
   width: 16px;
   height: 16px;
   z-index: 999999;
 }
-.screenity-scrollbar *::-webkit-scrollbar-track, .screenity-scrollbar::-webkit-scrollbar-track {
+.zvrrec-scrollbar *::-webkit-scrollbar-track, .zvrrec-scrollbar::-webkit-scrollbar-track {
   background-color: rgba(0,0,0,0);
 }
-.screenity-scrollbar *::-webkit-scrollbar-thumb, .screenity-scrollbar::-webkit-scrollbar-thumb {
+.zvrrec-scrollbar *::-webkit-scrollbar-thumb, .zvrrec-scrollbar::-webkit-scrollbar-thumb {
   background-color: rgba(0,0,0,0);
   border-radius:16px;
   border:0px solid #fff;
 }
-.screenity-scrollbar *::-webkit-scrollbar-button, .screenity-scrollbar::-webkit-scrollbar-button {
+.zvrrec-scrollbar *::-webkit-scrollbar-button, .zvrrec-scrollbar::-webkit-scrollbar-button {
   display:none;
 }
-.screenity-scrollbar *:hover::-webkit-scrollbar-thumb, .screenity-scrollbar:hover::-webkit-scrollbar-thumb {
+.zvrrec-scrollbar *:hover::-webkit-scrollbar-thumb, .zvrrec-scrollbar:hover::-webkit-scrollbar-thumb {
   background-color: #a0a0a5;
   border:4px solid #fff;
 }
@@ -366,7 +363,7 @@ const EditorApp = () => {
 	position: absolute!important;
 	top: 0px!important;
 	left: 0px!important;
-	background-color: #3080F8!important;
+	background-color: #635BFF!important;
 	color: #FFF!important;
 	font-family: "Satoshi-Medium"!important;
 	z-index: 99999999999!important;

@@ -4,10 +4,10 @@
 
 const STORAGE_KEY = "startFlowTrace";
 const MAX_ERR_LEN = 120;
-// Off in prod by default; set globalThis.SCREENITY_DEBUG_RECORDER for support.
+// Off in prod by default; set globalThis.ZVR_RECORDER_DEBUG_RECORDER for support.
 const DEBUG_FLOW =
   process.env.NODE_ENV !== "production" ||
-  (typeof globalThis !== "undefined" && !!globalThis.SCREENITY_DEBUG_RECORDER);
+  (typeof globalThis !== "undefined" && !!globalThis.ZVR_RECORDER_DEBUG_RECORDER);
 
 const sanitize = (str) => {
   if (!str) return null;

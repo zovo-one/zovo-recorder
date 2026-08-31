@@ -6,6 +6,7 @@ import { ContentStateContext } from "../../context/ContentState";
 import { showEditorToast } from "../../utils/editorToast";
 
 import Title from "./Title";
+import AnnotationOverlay from "./AnnotationOverlay";
 
 const VideoPlayer = (props) => {
   const [contentState, setContentState] = useContext(ContentStateContext);
@@ -247,7 +248,7 @@ const VideoPlayer = (props) => {
           overlayHost &&
           createPortal(
             <div
-              className="screenity-player-loading"
+              className="zvrrec-player-loading"
               style={{
                 position: "absolute",
                 inset: 0,
@@ -268,7 +269,7 @@ const VideoPlayer = (props) => {
                   border: "3px solid rgba(255,255,255,0.2)",
                   borderTopColor: "#fff",
                   borderRadius: "50%",
-                  animation: "screenity-spin 0.9s linear infinite",
+                  animation: "zvrrec-spin 0.9s linear infinite",
                 }}
               />
               {contentState.finalizingRecording && (
@@ -287,6 +288,7 @@ const VideoPlayer = (props) => {
             overlayHost
           )}
         {contentState.mode === "player" && <Title />}
+        <AnnotationOverlay host={overlayHost} />
       </div>
       <style>
         {`
@@ -295,7 +297,7 @@ const VideoPlayer = (props) => {
 							position: relative!important;
 						}
 					}
-					@keyframes screenity-spin {
+					@keyframes zvrrec-spin {
 						to { transform: rotate(360deg); }
 					}
 					`}

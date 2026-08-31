@@ -3,7 +3,7 @@ import { sendMessageTab } from "../tabManagement";
 
 localforage.config({
   driver: localforage.INDEXEDDB,
-  name: "screenity",
+  name: "zvrrec",
   version: 1,
 });
 
@@ -41,7 +41,7 @@ export const handleChunks = async (chunks, override = false, target = null) => {
   ]);
 
   if (DEBUG_POSTSTOP)
-    console.debug("[Screenity][BG] handleChunks called", {
+    console.debug("[ZovoRecorder][BG] handleChunks called", {
       chunksLength: chunks?.length,
       sandboxTab,
       override,
@@ -53,7 +53,7 @@ export const handleChunks = async (chunks, override = false, target = null) => {
   try {
     if (!Array.isArray(chunks) || chunks.length === 0) {
       if (DEBUG_POSTSTOP)
-        console.debug("[Screenity][BG] no chunks to send; deferring delivery");
+        console.debug("[ZovoRecorder][BG] no chunks to send; deferring delivery");
       return;
     }
 
@@ -67,7 +67,7 @@ export const handleChunks = async (chunks, override = false, target = null) => {
     const targetFrame = target?.frameId ?? null;
 
     if (DEBUG_POSTSTOP)
-      console.debug("[Screenity][BG] sending chunk-count", {
+      console.debug("[ZovoRecorder][BG] sending chunk-count", {
         count: chunks.length,
         targetTab,
         targetFrame,
@@ -105,7 +105,7 @@ export const handleChunks = async (chunks, override = false, target = null) => {
       });
     } catch (err) {
       if (DEBUG_POSTSTOP)
-        console.warn("[Screenity][BG] chunk-count message failed", err);
+        console.warn("[ZovoRecorder][BG] chunk-count message failed", err);
     }
 
     if (bannerSupport) {
@@ -113,7 +113,7 @@ export const handleChunks = async (chunks, override = false, target = null) => {
         await sendToTarget({ type: "banner-support" });
       } catch (err) {
         if (DEBUG_POSTSTOP)
-          console.warn("[Screenity][BG] banner-support message failed", err);
+          console.warn("[ZovoRecorder][BG] banner-support message failed", err);
       }
     }
 
@@ -121,14 +121,14 @@ export const handleChunks = async (chunks, override = false, target = null) => {
     // just triggers that read (old per-chunk relay push removed)
     if (DEBUG_POSTSTOP)
       console.debug(
-        "[Screenity][BG] instructing sandbox to make video tab",
+        "[ZovoRecorder][BG] instructing sandbox to make video tab",
         { sandboxTab: targetTab },
       );
     try {
       await sendToTarget({ type: "make-video-tab", override });
     } catch (err) {
       if (DEBUG_POSTSTOP)
-        console.warn("[Screenity][BG] make-video-tab message failed", err);
+        console.warn("[ZovoRecorder][BG] make-video-tab message failed", err);
     }
   } finally {
     await chrome.storage.local.set({ sendingChunks: false });

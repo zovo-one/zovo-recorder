@@ -123,7 +123,7 @@ const Background = () => {
         } else if (running) {
           // Recreate failed; disable effects so the camera feed isn't frozen.
           console.warn(
-            "[Screenity] Segmenter recreate failed; disabling background effects",
+            "[ZovoRecorder] Segmenter recreate failed; disabling background effects",
           );
           try {
             chrome.runtime.sendMessage({
@@ -205,7 +205,7 @@ const Background = () => {
   useEffect(() => {
     const handleMessage = (request) => {
       if (request.type === "set-background-effect") {
-        if (globalThis.SCREENITY_VERBOSE_LOGS) {
+        if (globalThis.ZVR_RECORDER_VERBOSE_LOGS) {
           console.log("Background component received effect change message");
         }
       }

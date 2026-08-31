@@ -2,7 +2,7 @@ import { executeScripts } from "../utils/executeScripts";
 import { tryResumePendingUploads } from "../recording/resumePendingUploads";
 
 const cloudFeaturesEnabled =
-  process.env.SCREENITY_ENABLE_CLOUD_FEATURES === "true";
+  process.env.ZVR_RECORDER_ENABLE_CLOUD_FEATURES === "true";
 
 export const onInstalledListener = () => {
   chrome.runtime.onInstalled.addListener(async (details) => {

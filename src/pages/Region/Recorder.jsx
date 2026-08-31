@@ -47,7 +47,7 @@ import localforage from "localforage";
 
 localforage.config({
   driver: localforage.INDEXEDDB,
-  name: "screenity",
+  name: "zvrrec",
   version: 1,
 });
 
@@ -56,8 +56,8 @@ const chunksStore = localforage.createInstance({
 });
 
 const DEBUG_RECORDER =
-  typeof window !== "undefined" ? !!window.SCREENITY_DEBUG_RECORDER : false;
-const logPrefix = "[Screenity Region Recorder]";
+  typeof window !== "undefined" ? !!window.ZVR_RECORDER_DEBUG_RECORDER : false;
+const logPrefix = "[ZovoRecorder Region Recorder]";
 
 const { debug, debugWarn, debugError } = createDebugLogger(
   logPrefix,
@@ -667,7 +667,7 @@ const Recorder = () => {
   useEffect(() => {
     window.parent.postMessage(
       {
-        type: "screenity-region-capture-loaded",
+        type: "zvrrec-region-capture-loaded",
       },
       "*",
     );
@@ -1111,7 +1111,7 @@ const Recorder = () => {
               lastRecordingBackendRef: backendRefAtOpen,
             });
           } catch {}
-          if (process.env.SCREENITY_DEV_MODE === "true") {
+          if (process.env.ZVR_RECORDER_DEV_MODE === "true") {
             console.log("[recorder-opfs][region] writer-open", {
               backend: selection.backend,
               path: "webcodecs",
@@ -2799,7 +2799,7 @@ const Recorder = () => {
 
   return (
     <div>
-      {process.env.SCREENITY_DEV_MODE === "true" && (
+      {process.env.ZVR_RECORDER_DEV_MODE === "true" && (
         <div
           style={{
             position: "fixed",

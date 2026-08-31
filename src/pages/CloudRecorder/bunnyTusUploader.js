@@ -1,6 +1,6 @@
 import { perfSpan } from "../utils/perfMarks";
 
-const API_BASE = process.env.SCREENITY_API_BASE_URL;
+const API_BASE = process.env.ZVR_RECORDER_API_BASE_URL;
 
 // Guard so uploaders in the same page session don't sweep concurrently.
 let _journalSweepDone = false;
@@ -868,13 +868,13 @@ export default class BunnyTusUploader {
           chrome.runtime.sendMessage({ type: "check-auth-status" }, resolve);
         });
 
-        if (!authenticated) throw new Error("Not authenticated with Screenity");
+        if (!authenticated) throw new Error("Not authenticated with ZovoRecorder");
 
-        const { screenityToken } = await chrome.storage.local.get([
-          "screenityToken",
+        const { zvrrecToken } = await chrome.storage.local.get([
+          "zvrrecToken",
         ]);
 
-        this.userToken = screenityToken;
+        this.userToken = zvrrecToken;
 
         if (!this.userToken) {
           throw new Error("Missing user token for saving upload metadata");
@@ -901,7 +901,7 @@ export default class BunnyTusUploader {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${screenityToken}`,
+                Authorization: `Bearer ${zvrrecToken}`,
               },
               body: JSON.stringify({
                 title,
@@ -1072,7 +1072,7 @@ export default class BunnyTusUploader {
       }
     }
 
-    const token = this.userToken || (await chrome.storage.local.get(["screenityToken"]).then(r => r.screenityToken));
+    const token = this.userToken || (await chrome.storage.local.get(["zvrrecToken"]).then(r => r.zvrrecToken));
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
     const url = `${API_BASE}/bunny/videos/tus-auth?videoId=${this.videoId}`;
 

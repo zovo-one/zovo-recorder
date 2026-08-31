@@ -1,5 +1,5 @@
 /*!
- * Screenity WebCodecs Recorder
+ * ZovoRecorder WebCodecs Recorder
  * Copyright (c) 2025 Serial Labs Ltd.
  *
  * Licensed under the GNU GPLv3.
@@ -168,10 +168,10 @@ export class WebCodecsRecorder {
       ? options.firstChunkWatchdogMs
       : Number.isFinite(
             /** @type {any} */ (globalThis)
-              .__screenityFirstChunkWatchdogMsForTests,
+              .__zvrrecFirstChunkWatchdogMsForTests,
           )
         ? /** @type {any} */ (globalThis)
-            .__screenityFirstChunkWatchdogMsForTests
+            .__zvrrecFirstChunkWatchdogMsForTests
         : 12000;
 
     // Mid-stream watchdog: encoder goes silent after producing chunks
@@ -182,10 +182,10 @@ export class WebCodecsRecorder {
       ? options.midStreamWatchdogMs
       : Number.isFinite(
             /** @type {any} */ (globalThis)
-              .__screenityMidStreamWatchdogMsForTests,
+              .__zvrrecMidStreamWatchdogMsForTests,
           )
         ? /** @type {any} */ (globalThis)
-            .__screenityMidStreamWatchdogMsForTests
+            .__zvrrecMidStreamWatchdogMsForTests
         : 15000;
 
     // Last structured failure code that fired via _reportFailure; passed
@@ -204,16 +204,16 @@ export class WebCodecsRecorder {
     this._encoderMaxQueueSizeExplicit =
       Number.isFinite(options.encoderMaxQueueSize) ||
       Number.isFinite(
-        /** @type {any} */ (globalThis).__screenityEncoderMaxQueueSizeForTests,
+        /** @type {any} */ (globalThis).__zvrrecEncoderMaxQueueSizeForTests,
       );
     this._encoderMaxQueueSize = Number.isFinite(options.encoderMaxQueueSize)
       ? options.encoderMaxQueueSize
       : Number.isFinite(
             /** @type {any} */ (globalThis)
-              .__screenityEncoderMaxQueueSizeForTests,
+              .__zvrrecEncoderMaxQueueSizeForTests,
           )
         ? /** @type {any} */ (globalThis)
-            .__screenityEncoderMaxQueueSizeForTests
+            .__zvrrecEncoderMaxQueueSizeForTests
         : 16;
     // Cold-start grace: a fresh HW encoder spikes the queue for under a second
     // while its session comes up. Buffer that, then latch back to the steady cap.
@@ -231,18 +231,18 @@ export class WebCodecsRecorder {
     this._startupHardMs = Number.isFinite(options.startupHardMs)
       ? options.startupHardMs
       : Number.isFinite(
-            /** @type {any} */ (globalThis).__screenityStartupWindowMsForTests,
+            /** @type {any} */ (globalThis).__zvrrecStartupWindowMsForTests,
           )
-        ? /** @type {any} */ (globalThis).__screenityStartupWindowMsForTests
+        ? /** @type {any} */ (globalThis).__zvrrecStartupWindowMsForTests
         : STARTUP_HARD_MS;
     this._startupHardFrameLimit = Number.isFinite(options.startupHardFrameLimit)
       ? options.startupHardFrameLimit
       : Number.isFinite(
             /** @type {any} */ (globalThis)
-              .__screenityStartupWindowFramesForTests,
+              .__zvrrecStartupWindowFramesForTests,
           )
         ? /** @type {any} */ (globalThis)
-            .__screenityStartupWindowFramesForTests
+            .__zvrrecStartupWindowFramesForTests
         : STARTUP_HARD_FRAME_LIMIT;
     this._adoptedPrewarmEncoder = false;
     this._adoptedDecoderConfig = null;
@@ -273,10 +273,10 @@ export class WebCodecsRecorder {
       ? options.reclaimRebuildThrottleMs
       : Number.isFinite(
             /** @type {any} */ (globalThis)
-              .__screenityReclaimRebuildThrottleMsForTests,
+              .__zvrrecReclaimRebuildThrottleMsForTests,
           )
         ? /** @type {any} */ (globalThis)
-            .__screenityReclaimRebuildThrottleMsForTests
+            .__zvrrecReclaimRebuildThrottleMsForTests
         : 2000;
     this._lastVideoReclaimRebuildAt = null;
     this._lastAudioReclaimRebuildAt = null;
@@ -290,9 +290,9 @@ export class WebCodecsRecorder {
       ? options.reclaimResetAfterMs
       : Number.isFinite(
             /** @type {any} */ (globalThis)
-              .__screenityReclaimResetAfterMsForTests,
+              .__zvrrecReclaimResetAfterMsForTests,
           )
-        ? /** @type {any} */ (globalThis).__screenityReclaimResetAfterMsForTests
+        ? /** @type {any} */ (globalThis).__zvrrecReclaimResetAfterMsForTests
         : 30000;
     // Pause closes encoders to release the HW slot before Chrome's
     // inactivity-reclaim fires. Flag swallows the racing reclaim error.
@@ -376,10 +376,10 @@ export class WebCodecsRecorder {
     // pixel-area cap without a real 4K source.
     const _g = /** @type {any} */ (globalThis);
     if (
-      _g.__screenityForceProbeResolution &&
-      typeof _g.__screenityForceProbeResolution === "object"
+      _g.__zvrrecForceProbeResolution &&
+      typeof _g.__zvrrecForceProbeResolution === "object"
     ) {
-      const { width, height } = _g.__screenityForceProbeResolution;
+      const { width, height } = _g.__zvrrecForceProbeResolution;
       if (Number.isFinite(width) && Number.isFinite(height)) {
         this.log("[WCR] Resolution from test override:", width, "x", height);
         if (this.options) {
@@ -750,7 +750,7 @@ export class WebCodecsRecorder {
 
           // E2E hook: simulate runtime encoder failure for the
           // in-session MediaRecorder swap test path.
-          if (globalThis.__screenityForceWebCodecsError) {
+          if (globalThis.__zvrrecForceWebCodecsError) {
             if (this._startResolve) {
               this._startResolve(true);
               this._startResolve = null;
@@ -766,7 +766,7 @@ export class WebCodecsRecorder {
           // E2E hook: fire `ended` on the video track mid-recording
           // (simulates monitor unplug / Stop-sharing click).
           const endAfterMs = Number(
-            (globalThis).__screenityForceTrackEndAfterMs,
+            (globalThis).__zvrrecForceTrackEndAfterMs,
           );
           if (
             this.videoTrack &&
@@ -935,7 +935,7 @@ export class WebCodecsRecorder {
       // stopped, or the writer keeps appending and the file never goes static.
       const forcedFinalizeDelayMs =
         Number(
-          /** @type {any} */ (globalThis).__screenityForceFinalizeDelayMs,
+          /** @type {any} */ (globalThis).__zvrrecForceFinalizeDelayMs,
         ) || 0;
       if (forcedFinalizeDelayMs > 0) {
         await new Promise((r) => setTimeout(r, forcedFinalizeDelayMs));
@@ -1876,15 +1876,15 @@ export class WebCodecsRecorder {
         // watchdog in tests.
         const _g = /** @type {any} */ (globalThis);
         if (
-          typeof _g.__screenitySuppressFirstChunks === "number" &&
-          _g.__screenitySuppressFirstChunks > 0
+          typeof _g.__zvrrecSuppressFirstChunks === "number" &&
+          _g.__zvrrecSuppressFirstChunks > 0
         ) {
-          _g.__screenitySuppressFirstChunks -= 1;
+          _g.__zvrrecSuppressFirstChunks -= 1;
           return;
         }
         // E2E hook: drop chunks mid-stream (after the first) to simulate a
         // silent encoder stall and drive the mid-stream rebuild path.
-        if (_g.__screenitySuppressChunks === true && this._firstChunkSeen) {
+        if (_g.__zvrrecSuppressChunks === true && this._firstChunkSeen) {
           return;
         }
         // First encoded video chunk: the recording is producing real
@@ -2000,7 +2000,7 @@ export class WebCodecsRecorder {
     // recovery + finalize-on-fatal paths without the 60s real timer.
     if (typeof globalThis !== "undefined") {
       const g = /** @type {any} */ (globalThis);
-      g.__screenityFireVideoEncoderError = (customMsg) => {
+      g.__zvrrecFireVideoEncoderError = (customMsg) => {
         const synthetic = new Error(
           customMsg || "Codec reclaimed due to inactivity",
         );
@@ -2008,12 +2008,12 @@ export class WebCodecsRecorder {
         try {
           videoEncoderError(synthetic);
         } catch (e) {
-          this.err("[WCR] __screenityFireVideoEncoderError threw:", e);
+          this.err("[WCR] __zvrrecFireVideoEncoderError threw:", e);
           return false;
         }
         return true;
       };
-      g.__screenityGetReclaimSnapshot = () => ({
+      g.__zvrrecGetReclaimSnapshot = () => ({
         video: this._encoderReclaimCount,
         audio: this._audioEncoderReclaimCount,
         firstChunkSeen: this._firstChunkSeen,
@@ -2048,8 +2048,8 @@ export class WebCodecsRecorder {
       // configure failure there need a fresh encoder.
       const gHooks = /** @type {any} */ (globalThis);
       const forcedConfigureTest =
-        gHooks.__screenityForceConfigureHwQuotaError === true ||
-        gHooks.__screenityForceConfigureSwQuotaError === true;
+        gHooks.__zvrrecForceConfigureHwQuotaError === true ||
+        gHooks.__zvrrecForceConfigureSwQuotaError === true;
       // Guarded like _rebuildVideoEncoder's replacement: once this encoder
       // isn't the active one (rebuild, pause, stop) its late errors must not
       // burn the reclaim budget or fail a healthy recording.
@@ -2101,10 +2101,10 @@ export class WebCodecsRecorder {
       const g = /** @type {any} */ (globalThis);
       if (
         hwPref &&
-        g.__screenityForceConfigureHwQuotaError &&
-        !g.__screenityForceConfigureHwQuotaError_fired
+        g.__zvrrecForceConfigureHwQuotaError &&
+        !g.__zvrrecForceConfigureHwQuotaError_fired
       ) {
-        g.__screenityForceConfigureHwQuotaError_fired = true;
+        g.__zvrrecForceConfigureHwQuotaError_fired = true;
         const forced = new Error(
           "Forced HW configure quota error for testing",
         );
@@ -2115,10 +2115,10 @@ export class WebCodecsRecorder {
       // contended" and exercise the cooldown retry path.
       if (
         swPref &&
-        g.__screenityForceConfigureSwQuotaError &&
-        !g.__screenityForceConfigureSwQuotaError_fired
+        g.__zvrrecForceConfigureSwQuotaError &&
+        !g.__zvrrecForceConfigureSwQuotaError_fired
       ) {
-        g.__screenityForceConfigureSwQuotaError_fired = true;
+        g.__zvrrecForceConfigureSwQuotaError_fired = true;
         const forced = new Error(
           "Forced SW configure quota error for testing",
         );
@@ -2814,7 +2814,7 @@ export class WebCodecsRecorder {
       while (this.running) {
         // E2E hook: simulate a silent stall (zero encoded frames, no
         // throw). Thrown-error hooks don't cover this failure mode.
-        if (globalThis.__screenityForceZeroFrames) break;
+        if (globalThis.__zvrrecForceZeroFrames) break;
 
         if (this.paused) {
           // Long pause isn't sleep. Reset so resume skips recovery.
@@ -2828,11 +2828,11 @@ export class WebCodecsRecorder {
         const _nowLoopTick = performance.now();
         const g = /** @type {any} */ (globalThis);
         const forcedGap =
-          typeof g.__screenityForceSleepGapMs === "number"
-            ? g.__screenityForceSleepGapMs
+          typeof g.__zvrrecForceSleepGapMs === "number"
+            ? g.__zvrrecForceSleepGapMs
             : 0;
         if (forcedGap > 0) {
-          g.__screenityForceSleepGapMs = 0;
+          g.__zvrrecForceSleepGapMs = 0;
           this._lastFrameArrivalAt = _nowLoopTick - forcedGap;
         }
         if (
@@ -2945,7 +2945,7 @@ export class WebCodecsRecorder {
         } else {
           // E2E seam: exit the loop as if the source track ended, which is what
           // stopping the screen share does.
-          if (/** @type {any} */ (globalThis).__screenityForceVideoTrackEnd) {
+          if (/** @type {any} */ (globalThis).__zvrrecForceVideoTrackEnd) {
             try { readResult.value?.close?.(); } catch {}
             break;
           }
@@ -3231,9 +3231,9 @@ export class WebCodecsRecorder {
       // E2E hook: override the perceived rate for one frame to drive
       // mismatch-rebuild in tests. Timestamps still use the real rate.
       const _g = /** @type {any} */ (globalThis);
-      const overrideRate = _g.__screenityForceAudioSampleRateOverride || 0;
+      const overrideRate = _g.__zvrrecForceAudioSampleRateOverride || 0;
       if (overrideRate > 0) {
-        _g.__screenityForceAudioSampleRateOverride = 0;
+        _g.__zvrrecForceAudioSampleRateOverride = 0;
       }
       const realSampleRate = audioData.sampleRate || null;
       const incomingSampleRate = overrideRate || realSampleRate;
@@ -3352,13 +3352,13 @@ export class WebCodecsRecorder {
       }
 
       // E2E seam: force the real backpressure branch for N ms of audio, the
-      // encoder-side counterpart to __screenityForceAudioDrop above.
+      // encoder-side counterpart to __zvrrecForceAudioDrop above.
       const forcedBpMs =
         Number(
-          /** @type {any} */ (globalThis).__screenityForceAudioBackpressure,
+          /** @type {any} */ (globalThis).__zvrrecForceAudioBackpressure,
         ) || 0;
       if (forcedBpMs > 0 && !isCatchUpSilence) {
-        /** @type {any} */ (globalThis).__screenityForceAudioBackpressure =
+        /** @type {any} */ (globalThis).__zvrrecForceAudioBackpressure =
           Math.max(0, forcedBpMs - (frames * 1000) / sampleRate);
       }
 
@@ -3607,12 +3607,12 @@ export class WebCodecsRecorder {
         // counter, so it reads exactly like upstream MSTP loss.
         const forcedDropMs =
           Number(
-            /** @type {any} */ (globalThis).__screenityForceAudioDrop,
+            /** @type {any} */ (globalThis).__zvrrecForceAudioDrop,
           ) || 0;
         if (forcedDropMs > 0 && audioData.sampleRate) {
           const chunkMs =
             ((audioData.numberOfFrames || 0) * 1000) / audioData.sampleRate;
-          /** @type {any} */ (globalThis).__screenityForceAudioDrop = Math.max(
+          /** @type {any} */ (globalThis).__zvrrecForceAudioDrop = Math.max(
             0,
             forcedDropMs - chunkMs,
           );

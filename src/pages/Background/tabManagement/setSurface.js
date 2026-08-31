@@ -10,7 +10,7 @@ export const setSurface = async (request) => {
   try {
     result = await loginWithWebsite({ force: true });
   } catch (err) {
-    console.warn("[Screenity][BG] setSurface auth refresh failed:", err);
+    console.warn("[ZovoRecorder][BG] setSurface auth refresh failed:", err);
   }
   const { activeTab, isSubscribed, instantMode, recordingType } =
     await chrome.storage.local.get([

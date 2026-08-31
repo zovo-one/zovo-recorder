@@ -136,7 +136,7 @@ const ResizableBox = () => {
   // never reaching `window`. re-resizable listens on `window`, so forward
   // events from our shadow container.
   useEffect(() => {
-    const shadowHostId = "screenity-root-container";
+    const shadowHostId = "zvrrec-root-container";
 
     const forwardToWindow = (e) => {
       if (

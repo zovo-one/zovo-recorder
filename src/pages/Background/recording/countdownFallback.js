@@ -33,18 +33,18 @@ const scheduleFallback = (delayMs = FALLBACK_AFTER_COUNTDOWN_STARTED_MS) => {
       // Skip during restart - that flow has its own start sequencing.
       if (!pendingRecording || recording || restarting) return;
       console.info(
-        "[Screenity][BG] countdown-finished missing after delay, auto-dispatching start",
+        "[ZovoRecorder][BG] countdown-finished missing after delay, auto-dispatching start",
       );
       try {
         startAfterCountdown("countdownFallback");
       } catch (err) {
         console.error(
-          "[Screenity][BG] countdownFallback startAfterCountdown failed",
+          "[ZovoRecorder][BG] countdownFallback startAfterCountdown failed",
           err,
         );
       }
     } catch (err) {
-      console.error("[Screenity][BG] countdownFallback storage read failed", err);
+      console.error("[ZovoRecorder][BG] countdownFallback storage read failed", err);
     }
   }, delayMs);
 };
@@ -89,7 +89,7 @@ export const recoverPendingCountdownOnStartup = async () => {
       startedAt <= recordingStoppedAt
     ) {
       console.info(
-        "[Screenity][BG] recoverPendingCountdownOnStartup: countdown predates last stop, skipping",
+        "[ZovoRecorder][BG] recoverPendingCountdownOnStartup: countdown predates last stop, skipping",
         { startedAt, recordingStoppedAt },
       );
       return;
@@ -98,26 +98,26 @@ export const recoverPendingCountdownOnStartup = async () => {
     if (elapsed < FALLBACK_AFTER_COUNTDOWN_STARTED_MS) return;
     if (elapsed > FALLBACK_RECOVERY_CEILING_MS) {
       console.info(
-        "[Screenity][BG] recoverPendingCountdownOnStartup: stale countdown, skipping",
+        "[ZovoRecorder][BG] recoverPendingCountdownOnStartup: stale countdown, skipping",
         { elapsedMs: elapsed },
       );
       return;
     }
     console.info(
-      "[Screenity][BG] recoverPendingCountdownOnStartup: SW restarted past countdown deadline, dispatching",
+      "[ZovoRecorder][BG] recoverPendingCountdownOnStartup: SW restarted past countdown deadline, dispatching",
       { elapsedMs: elapsed },
     );
     try {
       startAfterCountdown("countdownFallback-sw-restart");
     } catch (err) {
       console.error(
-        "[Screenity][BG] recoverPendingCountdownOnStartup startAfterCountdown failed",
+        "[ZovoRecorder][BG] recoverPendingCountdownOnStartup startAfterCountdown failed",
         err,
       );
     }
   } catch (err) {
     console.error(
-      "[Screenity][BG] recoverPendingCountdownOnStartup storage read failed",
+      "[ZovoRecorder][BG] recoverPendingCountdownOnStartup storage read failed",
       err,
     );
   }

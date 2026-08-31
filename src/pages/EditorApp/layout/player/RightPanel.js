@@ -16,6 +16,8 @@ import CropUI from "../editor/CropUI";
 import AudioUI from "../editor/AudioUI";
 
 import { ContentStateContext } from "../../context/ContentState";
+import AnnotationPanel from "../../components/player/AnnotationPanel";
+import ChaptersPanel from "../../components/player/ChaptersPanel";
 
 const RightPanel = () => {
   const [contentState, setContentState] = useContext(ContentStateContext);
@@ -297,12 +299,12 @@ const RightPanel = () => {
         ? source
         : new Blob([source], { type: "video/webm" });
     const ext = blob.type.includes("mp4") ? "mp4" : "webm";
-    const rawTitle = s.title || "screenity-recording";
+    const rawTitle = s.title || "zvrrec-recording";
     const safe = rawTitle
       .replace(/[\\:*?"<>|]/g, " ")
       .replace(/[\u0000-\u001F\u007F]/g, " ")
       .replace(/\s+/g, " ")
-      .trim() || "screenity-recording";
+      .trim() || "zvrrec-recording";
     const url = window.URL.createObjectURL(blob);
     chrome.downloads.download({ url, filename: `${safe}.${ext}` }, () => {
       window.URL.revokeObjectURL(url);
@@ -382,7 +384,7 @@ const RightPanel = () => {
                 try {
                   await fallbackViaBackground();
                 } catch (err) {
-                  console.error("[Screenity] raw download fallback failed:", err);
+                  console.error("[ZovoRecorder] raw download fallback failed:", err);
                 }
               } else if (
                 delta.state.current === "complete" ||
@@ -395,14 +397,14 @@ const RightPanel = () => {
             chrome.downloads.onChanged.addListener(interruptHandler);
           } catch (err) {
             console.warn(
-              "[Screenity] raw download direct path failed, using fallback:",
+              "[ZovoRecorder] raw download direct path failed, using fallback:",
               err,
             );
             try {
               await fallbackViaBackground();
             } catch (fallbackErr) {
               console.error(
-                "[Screenity] raw download fallback failed:",
+                "[ZovoRecorder] raw download fallback failed:",
                 fallbackErr,
               );
               showEditorToast(
@@ -453,7 +455,7 @@ const RightPanel = () => {
               },
             );
           } catch (err) {
-            console.error("[Screenity] Troubleshooting export failed:", err);
+            console.error("[ZovoRecorder] Troubleshooting export failed:", err);
           }
         },
         () => {},
@@ -467,6 +469,8 @@ const RightPanel = () => {
       {contentState.mode === "crop" && <CropUI />}
       {contentState.mode === "player" && (
         <div>
+          <AnnotationPanel />
+          <ChaptersPanel />
           {!contentState.fallback && contentState.offline && (
             <div className={styles.alert}>
               <div className={styles.buttonLeft}>
@@ -850,53 +854,6 @@ const RightPanel = () => {
                       : contentState.mp4ready
                       ? chrome.i18n.getMessage("addAudioButtonDescription")
                       : getPreparingLabel()}
-                  </div>
-                </div>
-                <div className={styles.buttonRight}>
-                  <ReactSVG src={URL + "editor/icons/right-arrow.svg"} />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className={styles.section}>
-            <div className={styles.sectionTitle}>
-              {chrome.i18n.getMessage("sandboxSaveTitle")}
-            </div>
-            {contentState.driveEnabled && (
-              <div
-                className={styles.buttonLogout}
-                onClick={() => {
-                  signOutDrive();
-                }}
-              >
-                {chrome.i18n.getMessage("signOutDriveLabel")}
-              </div>
-            )}
-            <div className={styles.buttonWrap}>
-              <div
-                role="button"
-                className={styles.button}
-                onClick={runSaveToDrive}
-                aria-disabled={contentState.saveDrive}
-                disabled={contentState.saveDrive}
-              >
-                <div className={styles.buttonLeft}>
-                  <ReactSVG src={URL + "editor/icons/drive.svg"} />
-                </div>
-                <div className={styles.buttonMiddle}>
-                  <div className={styles.buttonTitle}>
-                    {contentState.saveDrive
-                      ? chrome.i18n.getMessage("savingDriveLabel")
-                      : contentState.driveEnabled
-                      ? chrome.i18n.getMessage("saveDriveButtonTitle")
-                      : chrome.i18n.getMessage("signInDriveLabel")}
-                  </div>
-                  <div className={styles.buttonDescription}>
-                    {contentState.offline
-                      ? chrome.i18n.getMessage("noConnectionLabel")
-                      : contentState.updateChrome
-                      ? chrome.i18n.getMessage("notAvailableLabel")
-                      : chrome.i18n.getMessage("saveDriveButtonDescription")}
                   </div>
                 </div>
                 <div className={styles.buttonRight}>

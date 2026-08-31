@@ -73,7 +73,7 @@ const Welcome = (props) => {
             />
           </div>
           <a
-            href={process.env.SCREENITY_APP_BASE}
+            href={process.env.ZVR_RECORDER_APP_BASE}
             target="_blank"
             rel="noopener noreferrer"
             role="button"
@@ -98,7 +98,7 @@ const Welcome = (props) => {
           </a>
           <a
             className="welcome-support"
-            href="https://alyssax.substack.com/"
+            href="https://zovo.one"
             target="_blank"
             rel="noopener noreferrer"
           >

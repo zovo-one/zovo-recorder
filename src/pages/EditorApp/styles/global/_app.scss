@@ -265,11 +265,11 @@ button {
   height: 35px;
 }
 .Button.blue {
-  background-color: rgba(48, 128, 248, 0.1);
+  background-color: rgba(99, 91, 255, 0.1);
   color: $color-primary;
 
   &:hover {
-    background-color: rgba(48, 128, 248, 0.15);
+    background-color: rgba(99, 91, 255, 0.15);
     cursor: pointer;
   }
   &:focus {
@@ -778,10 +778,10 @@ button {
 }
 
 .ToastRoot[data-state="open"] {
-  animation: screenitySandboxToastIn 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  animation: zvrrecSandboxToastIn 150ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .ToastRoot[data-state="closed"] {
-  animation: screenitySandboxToastOut 100ms ease-in;
+  animation: zvrrecSandboxToastOut 100ms ease-in;
 }
 
 .ToastTitle {
@@ -789,7 +789,7 @@ button {
   font-family: $font-medium;
 }
 
-@keyframes screenitySandboxToastIn {
+@keyframes zvrrecSandboxToastIn {
   from {
     transform: translateY(calc(100% + var(--viewport-padding)));
   }
@@ -797,7 +797,7 @@ button {
     transform: translateY(0);
   }
 }
-@keyframes screenitySandboxToastOut {
+@keyframes zvrrecSandboxToastOut {
   from {
     opacity: 1;
   }

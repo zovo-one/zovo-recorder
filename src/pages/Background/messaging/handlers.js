@@ -1,4 +1,3 @@
-import JSZip from "jszip";
 import { registerMessage } from "../../../messaging/messageRouter";
 import { appendUploadTelemetryEventSerialized } from "../utils/serializedTelemetryStore";
 import { noteApiError, noteApiResponse } from "../utils/apiReachability";
@@ -81,8 +80,8 @@ import {
 } from "../../utils/diagnosticLog";
 import { supportContextQuery } from "../../utils/buildSupportContext";
 
-const API_BASE = process.env.SCREENITY_API_BASE_URL;
-const APP_BASE = process.env.SCREENITY_APP_BASE;
+const API_BASE = process.env.ZVR_RECORDER_API_BASE_URL;
+const APP_BASE = process.env.ZVR_RECORDER_APP_BASE;
 
 // Flip a project to isPublic:true after recording finishes. v2 removed
 // the publish system, so isPublic is the only access gate; without
@@ -91,13 +90,13 @@ const APP_BASE = process.env.SCREENITY_APP_BASE;
 const markProjectPublic = async (projectId) => {
   if (!projectId || !API_BASE) return;
   try {
-    const { screenityToken } = await chrome.storage.local.get("screenityToken");
-    if (!screenityToken) return;
+    const { zvrrecToken } = await chrome.storage.local.get("zvrrecToken");
+    if (!zvrrecToken) return;
     await fetch(`${API_BASE}/videos/${projectId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${screenityToken}`,
+        Authorization: `Bearer ${zvrrecToken}`,
       },
       body: JSON.stringify({ isPublic: true }),
     });
@@ -106,13 +105,13 @@ const markProjectPublic = async (projectId) => {
   }
 };
 const CLOUD_FEATURES_ENABLED =
-  process.env.SCREENITY_ENABLE_CLOUD_FEATURES === "true";
+  process.env.ZVR_RECORDER_ENABLE_CLOUD_FEATURES === "true";
 const DEBUG_POSTSTOP = false;
 // Gate for the start-flow / stop-flow / offscreen-diag console mirrors.
-// Off in prod by default; set globalThis.SCREENITY_DEBUG_RECORDER for support.
+// Off in prod by default; set globalThis.ZVR_RECORDER_DEBUG_RECORDER for support.
 const DEBUG_FLOW =
   process.env.NODE_ENV !== "production" ||
-  (typeof globalThis !== "undefined" && !!globalThis.SCREENITY_DEBUG_RECORDER);
+  (typeof globalThis !== "undefined" && !!globalThis.ZVR_RECORDER_DEBUG_RECORDER);
 const DAY_MS = 86400000;
 
 // Gating for the editor review prompt: only ask established users right after
@@ -359,7 +358,7 @@ const scheduleLocalPlaybackAlarm = async (offer) => {
       when: Number(offer.expiresAt),
     });
   } catch (err) {
-    console.warn("[Screenity][BG] Failed to schedule local playback alarm", err);
+    console.warn("[ZovoRecorder][BG] Failed to schedule local playback alarm", err);
   }
 };
 
@@ -387,7 +386,7 @@ const clearStoredLocalPlaybackOffer = async ({
     const targetStore = offerScreenStore(existing);
     await targetStore.clear().catch((err) => {
       console.warn(
-        "[Screenity][BG] Failed to clear screen chunks while clearing local playback offer",
+        "[ZovoRecorder][BG] Failed to clear screen chunks while clearing local playback offer",
         err,
       );
     });
@@ -410,7 +409,7 @@ const clearStoredLocalPlaybackOffer = async ({
   });
 
   if (existing?.offerId) {
-    console.info("[Screenity][BG] Cleared local screen playback offer", {
+    console.info("[ZovoRecorder][BG] Cleared local screen playback offer", {
       reason,
       offerId: existing.offerId,
       clearChunks: Boolean(clearChunks),
@@ -452,7 +451,7 @@ const logStopRecordingTabEvent = (message, sender) => {
     const senderTabId = message?.tabId || sender?.tab?.id || null;
     const senderUrl = sender?.url || null;
     const stack = new Error().stack;
-    console.warn("[Screenity][BG] stop-recording-tab received", {
+    console.warn("[ZovoRecorder][BG] stop-recording-tab received", {
       reason,
       senderTabId,
       senderUrl,
@@ -467,7 +466,7 @@ const logStopRecordingTabEvent = (message, sender) => {
       },
     });
   } catch (err) {
-    console.warn("[Screenity][BG] stop-recording-tab logging failed", err);
+    console.warn("[ZovoRecorder][BG] stop-recording-tab logging failed", err);
   }
 };
 
@@ -491,8 +490,8 @@ const handleCreateVideoProject = async (message) => {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${await chrome.storage.local
-          .get("screenityToken")
-          .then((r) => r.screenityToken)}`,
+          .get("zvrrecToken")
+          .then((r) => r.zvrrecToken)}`,
       },
       body: JSON.stringify({
         title: message.title || "Untitled Recording",
@@ -527,8 +526,8 @@ const handleFetchVideos = async (message) => {
     const filter = message.filter || "all";
 
     const token = await chrome.storage.local
-      .get("screenityToken")
-      .then((r) => r.screenityToken);
+      .get("zvrrecToken")
+      .then((r) => r.zvrrecToken);
 
     const res = await fetch(
       `${API_BASE}/videos?page=${page}&pageSize=${pageSize}&sort=${sort}&filter=${filter}`,
@@ -612,11 +611,11 @@ const fetchStorageQuota = async (token) => {
 // and the full ladder reads as stuck. 8s matches the start path.
 const probeApiReachability = async () => {
   try {
-    const { screenityToken } = await chrome.storage.local.get("screenityToken");
+    const { zvrrecToken } = await chrome.storage.local.get("zvrrecToken");
     const res = await fetch(`${API_BASE}/storage/quota`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${screenityToken}`,
+        Authorization: `Bearer ${zvrrecToken}`,
       },
       credentials: "include",
       signal: AbortSignal.timeout(QUOTA_TIMEOUT_MS),
@@ -629,9 +628,9 @@ const probeApiReachability = async () => {
 
 const handleCheckStorageQuota = async (retried = false) => {
   try {
-    const { screenityToken } = await chrome.storage.local.get("screenityToken");
+    const { zvrrecToken } = await chrome.storage.local.get("zvrrecToken");
 
-    const res = await fetchStorageQuota(screenityToken);
+    const res = await fetchStorageQuota(zvrrecToken);
     await noteApiResponse(res);
 
     // 401: invalidate auth cache so loginWithWebsite refreshes the token
@@ -695,8 +694,8 @@ export const handleFinishMultiRecording = async () => {
         return;
       }
 
-      const url = `${process.env.SCREENITY_APP_BASE}/editor/${multiProjectId}/edit?share=true`;
-      const publicUrl = `${process.env.SCREENITY_APP_BASE}/view/${multiProjectId}/`;
+      const url = `${process.env.ZVR_RECORDER_APP_BASE}/editor/${multiProjectId}/edit?share=true`;
+      const publicUrl = `${process.env.ZVR_RECORDER_APP_BASE}/view/${multiProjectId}/`;
 
       markProjectPublic(multiProjectId);
 
@@ -737,13 +736,13 @@ export const handleFinishMultiRecording = async () => {
           projectId: projectId || null,
         }).catch((err) =>
           console.warn(
-            "[Screenity][BG] Failed to send update-project-ready (finish-multi-recording)",
+            "[ZovoRecorder][BG] Failed to send update-project-ready (finish-multi-recording)",
             err,
           ),
         );
       } else {
         console.warn(
-          "[Screenity][BG] No tab available for update-project-ready (finish-multi-recording)",
+          "[ZovoRecorder][BG] No tab available for update-project-ready (finish-multi-recording)",
           { projectId, instantMode: Boolean(instantMode) },
         );
       }
@@ -844,7 +843,7 @@ const registerRecordingTabListener = (ownerTabId) => {
         }),
       ).catch((err) => {
         console.error(
-          "[Screenity][BG] handleStopRecordingTab failed in tab-removed",
+          "[ZovoRecorder][BG] handleStopRecordingTab failed in tab-removed",
           err,
         );
       });
@@ -930,7 +929,7 @@ const resolveActiveSessionConflict = async (incomingSession) => {
 
   const alive = await isActiveSessionAlive(activeRecordingSession);
   if (alive) {
-    console.warn("[Screenity][BG] session_conflict_rejected", {
+    console.warn("[ZovoRecorder][BG] session_conflict_rejected", {
       activeId: activeRecordingSession.id,
       incomingId: incomingSession.id,
       activeRecorderTabId:
@@ -942,7 +941,7 @@ const resolveActiveSessionConflict = async (incomingSession) => {
   await clearRecordingSessionSafe("stale-conflict-recovered", {
     incomingId: incomingSession.id,
   });
-  console.warn("[Screenity][BG] session_conflict_stale_recovered", {
+  console.warn("[ZovoRecorder][BG] session_conflict_stale_recovered", {
     incomingId: incomingSession.id,
   });
   return { allow: true, staleRecovered: true };
@@ -1058,11 +1057,11 @@ export const setupHandlers = () => {
     const keepAlive = setInterval(ping, 10_000);
 
     try {
-      const { screenityToken } = await chrome.storage.local.get([
-        "screenityToken",
+      const { zvrrecToken } = await chrome.storage.local.get([
+        "zvrrecToken",
       ]);
       const headers = { "Content-Type": "application/json" };
-      if (screenityToken) headers.Authorization = `Bearer ${screenityToken}`;
+      if (zvrrecToken) headers.Authorization = `Bearer ${zvrrecToken}`;
       // No keepalive:true (MV3 SW fetches with it can hang forever).
       // 3s abort then fall through to editor-tab proxy. Healthy is
       // <500ms, 1s was too tight and tripped on normal latency spikes.
@@ -1104,7 +1103,7 @@ export const setupHandlers = () => {
 
     // The guarded resolver makes a concurrent open reuse the same in-flight tab
     // instead of racing a second create.
-    const targetUrl = `${process.env.SCREENITY_APP_BASE}/editor/${projectId}/edit?load=true`;
+    const targetUrl = `${process.env.ZVR_RECORDER_APP_BASE}/editor/${projectId}/edit?load=true`;
     const resolved = await resolveEditorTabForTarget({
       targetUrl,
       expectedProjectId: projectId,
@@ -1158,11 +1157,11 @@ export const setupHandlers = () => {
         return { ok: false, error: "invalid-path" };
       }
       if (!API_BASE) return { ok: false, error: "no-api-base" };
-      const { screenityToken } = await chrome.storage.local.get([
-        "screenityToken",
+      const { zvrrecToken } = await chrome.storage.local.get([
+        "zvrrecToken",
       ]);
       const headers = { "Content-Type": "application/json" };
-      if (screenityToken) headers.Authorization = `Bearer ${screenityToken}`;
+      if (zvrrecToken) headers.Authorization = `Bearer ${zvrrecToken}`;
       const res = await fetch(`${API_BASE}${path}`, {
         method,
         headers,
@@ -1190,7 +1189,7 @@ export const setupHandlers = () => {
     } catch {
       payloadStr = String(message.payload);
     }
-    console.warn("[Screenity][OffscreenDiag]", message.source, payloadStr);
+    console.warn("[ZovoRecorder][OffscreenDiag]", message.source, payloadStr);
     return { ok: true };
   });
   registerMessage("offscreen-ready", async () => {
@@ -1491,7 +1490,7 @@ export const setupHandlers = () => {
     ) {
       if (DEBUG_POSTSTOP) {
         console.warn(
-          "[Screenity][BG] Suppressed duplicate stop-recording-tab message",
+          "[ZovoRecorder][BG] Suppressed duplicate stop-recording-tab message",
           {
             inFlight: stopRecordingTabInFlight,
             deltaMs: now - stopRecordingTabLastAt,
@@ -1642,40 +1641,31 @@ export const setupHandlers = () => {
     });
   });
 
-  registerMessage("review-screenity", () =>
-    createTab(
-      "https://chrome.google.com/webstore/detail/screenity-screen-recorder/kbbdabhdfibnancpjfhlkhafgdilcnji/reviews",
-      true,
-    ),
-  );
-  registerMessage("follow-twitter", () =>
-    createTab("https://alyssax.substack.com/", true),
-  );
   registerMessage("pricing", (message) => {
     const source =
       typeof message?.source === "string" && message.source
         ? message.source
         : "extension";
     return createTab(
-      `https://screenity.io/?ref=${encodeURIComponent(source)}`,
+      `https://zovo.one/pricing?ref=${encodeURIComponent(source)}`,
       true,
     );
   });
   registerMessage("open-processing-info", () =>
     createTab(
-      "https://help.screenity.io/editing-and-exporting/dJRFpGq56JFKC7k8zEvsqb/why-is-there-a-5-minute-limit-for-editing/ddy4e4TpbnrFJ8VoRT37tQ",
+      "https://zovo.one/editing-and-exporting/dJRFpGq56JFKC7k8zEvsqb/why-is-there-a-5-minute-limit-for-editing/ddy4e4TpbnrFJ8VoRT37tQ",
       true,
     ),
   );
   registerMessage("upgrade-info", () =>
     createTab(
-      "https://help.screenity.io/getting-started/77KizPC8MHVGfpKpqdux9D/what-are-the-technical-requirements-for-using-screenity/6kdB6qru6naVD8ZLFvX3m9",
+      "https://zovo.one/getting-started/77KizPC8MHVGfpKpqdux9D/what-are-the-technical-requirements-for-using-zvrrec/6kdB6qru6naVD8ZLFvX3m9",
       true,
     ),
   );
   registerMessage("trim-info", () =>
     createTab(
-      "https://help.screenity.io/editing-and-exporting/dJRFpGq56JFKC7k8zEvsqb/how-to-cut-trim-or-mute-parts-of-your-video/svNbM7YHYY717MuSWXrKXH",
+      "https://zovo.one/editing-and-exporting/dJRFpGq56JFKC7k8zEvsqb/how-to-cut-trim-or-mute-parts-of-your-video/svNbM7YHYY717MuSWXrKXH",
       true,
     ),
   );
@@ -1684,7 +1674,7 @@ export const setupHandlers = () => {
   );
   registerMessage("chrome-update-info", () =>
     createTab(
-      "https://help.screenity.io/getting-started/77KizPC8MHVGfpKpqdux9D/what-are-the-technical-requirements-for-using-screenity/6kdB6qru6naVD8ZLFvX3m9",
+      "https://zovo.one/getting-started/77KizPC8MHVGfpKpqdux9D/what-are-the-technical-requirements-for-using-zvrrec/6kdB6qru6naVD8ZLFvX3m9",
       true,
     ),
   );
@@ -1693,16 +1683,16 @@ export const setupHandlers = () => {
   registerMessage("pip-started", () => handlePip(true));
   registerMessage("sign-out-drive", (message) => handleSignOutDrive(message));
   registerMessage("open-help", () =>
-    createTab("https://help.screenity.io/", true),
+    createTab("https://zovo.one/", true),
   );
   registerMessage("memory-limit-help", () =>
     createTab(
-      "https://help.screenity.io/troubleshooting/9Jy5RGjNrBB42hqUdREQ7W/what-does-%E2%80%9Cmemory-limit-reached%E2%80%9D-mean-when-recording/8WkwHbt3puuXunYqQnyPcb",
+      "https://zovo.one/troubleshooting/9Jy5RGjNrBB42hqUdREQ7W/what-does-%E2%80%9Cmemory-limit-reached%E2%80%9D-mean-when-recording/8WkwHbt3puuXunYqQnyPcb",
       true,
     ),
   );
   registerMessage("open-home", () =>
-    createTab("https://screenity.io/", true),
+    createTab("https://zovo.one/", true),
   );
   registerMessage("report-bug", async (message) => {
     const qs = await supportContextQuery({
@@ -1775,16 +1765,16 @@ export const setupHandlers = () => {
   );
   registerMessage("submit-diagnostic-report", async (message) => {
     try {
-      const appBase = process.env.SCREENITY_APP_BASE;
+      const appBase = process.env.ZVR_RECORDER_APP_BASE;
       if (!appBase) return;
-      const { startFlowTrace, screenityToken, projectId, recorderSession } =
+      const { startFlowTrace, zvrrecToken, projectId, recorderSession } =
         await chrome.storage.local.get([
           "startFlowTrace",
-          "screenityToken",
+          "zvrrecToken",
           "projectId",
           "recorderSession",
         ]);
-      if (!startFlowTrace || !screenityToken) return;
+      if (!startFlowTrace || !zvrrecToken) return;
       const trigger = message?.trigger || "manual";
       const isSuccess = trigger === "success-summary";
       const trace = startFlowTrace;
@@ -1821,7 +1811,7 @@ export const setupHandlers = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${screenityToken}`,
+          Authorization: `Bearer ${zvrrecToken}`,
         },
         body: JSON.stringify(payload),
         keepalive: true,
@@ -1957,7 +1947,7 @@ export const setupHandlers = () => {
       await chrome.storage.local.set({ originalTabId: currentTab.id });
     }
     const loginTab = await chrome.tabs.create({
-      url: `${process.env.SCREENITY_APP_BASE}/login?extension=true`,
+      url: `${process.env.ZVR_RECORDER_APP_BASE}/login?extension=true`,
       active: true,
     });
     // Marks an explicitly-started login so the tab-update fallback can finish it
@@ -1972,7 +1962,7 @@ export const setupHandlers = () => {
       sendResponse({ success: false, message: "Cloud features disabled" });
       return true;
     }
-    // keep screenityToken during active recording for bunnyTusUploader.refreshTusAuth;
+    // keep zvrrecToken during active recording for bunnyTusUploader.refreshTusAuth;
     // removed by recording-end cleanup
     const { recording, pendingRecording } = await chrome.storage.local.get([
       "recording",
@@ -1980,7 +1970,7 @@ export const setupHandlers = () => {
     ]);
     const recordingBusy = Boolean(recording || pendingRecording);
     const removeKeys = [
-      "screenityUser",
+      "zvrrecUser",
       "lastAuthCheck",
       "isSubscribed",
       "isLoggedIn",
@@ -1989,7 +1979,7 @@ export const setupHandlers = () => {
       "loginTabId",
     ];
     if (!recordingBusy) {
-      removeKeys.push("screenityToken");
+      removeKeys.push("zvrrecToken");
     }
     await chrome.storage.local.remove(removeKeys);
 
@@ -2000,7 +1990,7 @@ export const setupHandlers = () => {
       stayLoggedOut: true,
       isSubscribed: false,
       proSubscription: null,
-      screenityUser: null,
+      zvrrecUser: null,
       ...(recordingBusy ? { logoutPendingTokenClear: true } : {}),
     });
 
@@ -2032,7 +2022,7 @@ export const setupHandlers = () => {
         }
         chrome.storage.onChanged.removeListener(drainListener);
         await chrome.storage.local.remove([
-          "screenityToken",
+          "zvrrecToken",
           "logoutPendingTokenClear",
         ]);
       };
@@ -2317,7 +2307,7 @@ export const setupHandlers = () => {
       },
     });
 
-    console.info("[Screenity][BG] prepare-open-editor", {
+    console.info("[ZovoRecorder][BG] prepare-open-editor", {
       projectId: expectedProjectId,
       targetUrl,
       instantMode: Boolean(message.instantMode),
@@ -2331,7 +2321,7 @@ export const setupHandlers = () => {
       expectedKind,
       reason: "prepare-open-editor",
     });
-    console.info("[Screenity][BG] prepare-open-editor resolved", {
+    console.info("[ZovoRecorder][BG] prepare-open-editor resolved", {
       tabId: resolved.tabId || null,
       reused: Boolean(resolved.reused),
       opened: Boolean(resolved.opened),
@@ -2380,7 +2370,7 @@ export const setupHandlers = () => {
         projectId: activeProjectId || null,
       }).catch((err) =>
         console.warn(
-          "[Screenity][BG] Failed to send update-project-loading",
+          "[ZovoRecorder][BG] Failed to send update-project-loading",
           err,
         ),
       );
@@ -2430,7 +2420,7 @@ export const setupHandlers = () => {
       })) ||
       null;
 
-    console.info("[Screenity][BG] editor-ready received", {
+    console.info("[ZovoRecorder][BG] editor-ready received", {
       newProject: Boolean(message.newProject),
       multiMode: Boolean(message.multiMode),
       projectId,
@@ -2506,7 +2496,7 @@ export const setupHandlers = () => {
               trackType: "screen",
             },
       }).catch((err) =>
-        console.warn("[Screenity][BG] Failed to send update-project-ready", err),
+        console.warn("[ZovoRecorder][BG] Failed to send update-project-ready", err),
       );
     } else {
       console.warn("❗ No valid messageTab found in editor-ready");
@@ -2551,7 +2541,7 @@ export const setupHandlers = () => {
     });
     await scheduleLocalPlaybackAlarm(normalizedOffer);
 
-    console.info("[Screenity][BG] Registered local screen playback offer", {
+    console.info("[ZovoRecorder][BG] Registered local screen playback offer", {
       offerId: normalizedOffer.offerId,
       projectId: normalizedOffer.projectId,
       sceneId: normalizedOffer.sceneId,
@@ -2679,7 +2669,7 @@ export const setupHandlers = () => {
         sceneId: updated.sceneId,
       },
     });
-    console.info("[Screenity][BG] Local screen playback offer marked used", {
+    console.info("[ZovoRecorder][BG] Local screen playback offer marked used", {
       offerId: updated.offerId,
       projectId: updated.projectId,
       sceneId: updated.sceneId,
@@ -2737,7 +2727,7 @@ export const setupHandlers = () => {
         reason: updated.fallbackReason,
       },
     });
-    console.info("[Screenity][BG] Local screen playback offer fallback", {
+    console.info("[ZovoRecorder][BG] Local screen playback offer fallback", {
       offerId: updated.offerId,
       reason: updated.fallbackReason,
     });
@@ -2761,7 +2751,7 @@ export const setupHandlers = () => {
     }
 
     chrome.tabs.create({
-      url: `${process.env.SCREENITY_APP_BASE}/reactivate`,
+      url: `${process.env.ZVR_RECORDER_APP_BASE}/reactivate`,
       active: true,
     });
   });
@@ -2772,7 +2762,7 @@ export const setupHandlers = () => {
     }
 
     chrome.tabs.create({
-      url: `${process.env.SCREENITY_APP_BASE}/upgrade`,
+      url: `${process.env.ZVR_RECORDER_APP_BASE}/upgrade`,
       active: true,
     });
   });
@@ -2787,7 +2777,7 @@ export const setupHandlers = () => {
       return;
     }
 
-    const url = `${process.env.SCREENITY_APP_BASE}/?settings=open`;
+    const url = `${process.env.ZVR_RECORDER_APP_BASE}/?settings=open`;
     createTab(url, true);
   });
   registerMessage("open-support", async () => {
@@ -3007,7 +2997,7 @@ export const setupHandlers = () => {
       try {
         await chrome.tabs.update(tabId, { active: true });
       } catch (err) {
-        console.warn("[Screenity] activate-recorder-tab failed:", String(err));
+        console.warn("[ZovoRecorder] activate-recorder-tab failed:", String(err));
       }
     }
   });
@@ -3023,30 +3013,37 @@ export const setupHandlers = () => {
     await chrome.alarms.clear(FIRST_CHUNK_WATCHDOG_ALARM).catch(() => {});
   });
 
-  // Zip in BG so jszip stays out of contentScript.bundle.js (~100KB).
+  // Build a portable JSON diagnostic bundle in the service worker. The
+  // previous JSZip dependency bundled a setImmediate polyfill containing
+  // new Function(), which is incompatible with MV3 remote-code policy.
   registerMessage("make-zip", async (message) => {
     try {
       const files = (message && message.files) || {};
-      const filename =
+      const requestedFilename =
         (message && typeof message.filename === "string"
           ? message.filename
-          : null) || "screenity-bundle.zip";
-      const zip = new JSZip();
+          : null) || "zvrrec-bundle.json";
+      const bundle = { format: "zvrrec-diagnostics-v1", files: {} };
       for (const [name, content] of Object.entries(files)) {
         if (typeof content === "string") {
-          zip.file(name, content);
+          bundle.files[name] = content;
         } else if (content instanceof Uint8Array) {
-          zip.file(name, content);
+          let binary = "";
+          for (let index = 0; index < content.length; index += 0x8000) {
+            binary += String.fromCharCode(...content.subarray(index, index + 0x8000));
+          }
+          bundle.files[name] = { encoding: "base64", data: btoa(binary) };
         } else if (content && typeof content === "object") {
-          // Convenience: stringify plain objects so callers can pass
-          // structured payloads directly.
-          zip.file(name, JSON.stringify(content));
+          bundle.files[name] = JSON.stringify(content);
         }
       }
-      // base64 because ArrayBuffer/Uint8Array structured-clone is
-      // unreliable across MV3 SW → content (lands as empty {}).
-      const base64 = await zip.generateAsync({ type: "base64" });
-      return { ok: true, base64, filename };
+      const bytes = new TextEncoder().encode(JSON.stringify(bundle, null, 2));
+      let binary = "";
+      for (let index = 0; index < bytes.length; index += 0x8000) {
+        binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000));
+      }
+      const filename = requestedFilename.replace(/\.zip$/i, ".json");
+      return { ok: true, base64: btoa(binary), filename, mime: "application/json" };
     } catch (err) {
       console.warn("[make-zip] failed", err);
       return {

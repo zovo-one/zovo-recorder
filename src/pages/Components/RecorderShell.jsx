@@ -15,8 +15,8 @@ const RecorderShell = ({
     <div className="wrap">
       <img
         className="logo"
-        src={chrome.runtime.getURL("assets/logo-text.svg")}
-        alt="Screenity logo"
+        src={chrome.runtime.getURL("assets/brand/wordmark.svg")}
+        alt="ZovoRecorder logo"
       />
       <div className="middle-area">
         <img

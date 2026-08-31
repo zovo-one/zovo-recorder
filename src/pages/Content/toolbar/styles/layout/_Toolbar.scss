@@ -7,7 +7,7 @@ button {
   all: unset;
 }
 
-iframe.screenity-iframe {
+iframe.zvrrec-iframe {
   width: 100%;
   height: 100%;
   position: fixed;
@@ -500,8 +500,8 @@ body.driver-active .OnboardingArrow {
 }
 
 // Onboarding (driver.js)
-.driver-popover.ScreenityOnboardingPopover,
-.ScreenityOnboardingPopover,
+.driver-popover.ZovoRecorderOnboardingPopover,
+.ZovoRecorderOnboardingPopover,
 .onboarding-popover {
   border-radius: $container-border-radius !important;
   background: $color-background !important;

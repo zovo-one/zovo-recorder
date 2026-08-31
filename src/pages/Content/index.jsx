@@ -8,17 +8,17 @@ import Content from "./Content";
 
 // Idempotency: content script is injected via manifest AND by
 // executeScripts() on session start; both mounts would double-fire.
-if (window.__screenityContentBootstrapped) {
+if (window.__zvrrecContentBootstrapped) {
 } else {
-  window.__screenityContentBootstrapped = true;
+  window.__zvrrecContentBootstrapped = true;
 
-  const existingRoot = document.getElementById("screenity-ui");
+  const existingRoot = document.getElementById("zvrrec-ui");
   if (existingRoot) {
     document.body.removeChild(existingRoot);
   }
 
   const root = document.createElement("div");
-  root.id = "screenity-ui";
+  root.id = "zvrrec-ui";
   document.body.appendChild(root);
 
   const appRoot = createRoot(root);

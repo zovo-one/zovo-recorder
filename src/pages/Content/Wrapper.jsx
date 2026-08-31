@@ -278,7 +278,7 @@ const Wrapper = () => {
     const request = () => {
       permissionsRef.current?.contentWindow?.postMessage(
         {
-          type: "screenity-get-permissions",
+          type: "zvrrec-get-permissions",
         },
         "*"
       );
@@ -341,7 +341,7 @@ const Wrapper = () => {
     <div ref={parentRef}>
       {contentState.showExtension && (
         <iframe
-          className="screenity-iframe"
+          className="zvrrec-iframe"
           style={{
             // all: "unset",
             display: "none",
@@ -354,7 +354,7 @@ const Wrapper = () => {
       )}
       {contentState.hasOpenedBefore && (
         <iframe
-          className="screenity-iframe"
+          className="zvrrec-iframe"
           style={{
             // all: "unset",
             display: "none",
@@ -407,7 +407,7 @@ const Wrapper = () => {
                 onClick={() => {
                   const onboardingActive =
                     document.documentElement.classList.contains(
-                      "screenity-driver-active"
+                      "zvrrec-driver-active"
                     ) || Boolean(document.querySelector(".driver-overlay"));
                   if (onboardingActive) return;
 
@@ -442,7 +442,7 @@ const Wrapper = () => {
           <CursorModes />
           <root.div
             className="root-container"
-            id="screenity-root-container"
+            id="zvrrec-root-container"
             style={{
               display: "block",
               width: "100%",

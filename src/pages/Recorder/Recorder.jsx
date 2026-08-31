@@ -68,7 +68,7 @@ import {
 
 localforage.config({
   driver: localforage.INDEXEDDB,
-  name: "screenity",
+  name: "zvrrec",
   version: 1,
 });
 
@@ -78,14 +78,14 @@ const chunksStore = localforage.createInstance({
 
 document.body.style.willChange = "contents";
 
-// Toggle: window.SCREENITY_DEBUG_RECORDER = true
+// Toggle: window.ZVR_RECORDER_DEBUG_RECORDER = true
 const DEBUG_RECORDER =
-  typeof window !== "undefined" ? !!window.SCREENITY_DEBUG_RECORDER : false;
+  typeof window !== "undefined" ? !!window.ZVR_RECORDER_DEBUG_RECORDER : false;
 const FORCE_MEDIARECORDER =
   typeof window !== "undefined"
-    ? !!window.SCREENITY_FORCE_MEDIARECORDER
+    ? !!window.ZVR_RECORDER_FORCE_MEDIARECORDER
     : false;
-const logPrefix = "[Screenity Recorder]";
+const logPrefix = "[ZovoRecorder Recorder]";
 
 const { debug, debugWarn, debugError } = createDebugLogger(
   logPrefix,
@@ -101,7 +101,7 @@ function slLog(tag, extra = {}) {
   const entry = { t: Date.now(), tag, ...extra };
   if (DEBUG_RECORDER) {
     // eslint-disable-next-line no-console
-    console.log("[Screenity:SL]", tag, entry);
+    console.log("[ZovoRecorder:SL]", tag, entry);
   }
   _slBuffer.push(entry);
   if (_slBuffer.length > SL_MAX) _slBuffer.splice(0, _slBuffer.length - SL_MAX);
@@ -424,7 +424,7 @@ const Recorder = () => {
     perfMark("Recorder keepalive.enter");
 
     const inlineKA =
-      typeof window !== "undefined" ? window.__SCREENITY_KEEPALIVE : null;
+      typeof window !== "undefined" ? window.__ZVR_RECORDER_KEEPALIVE : null;
 
     // startedAt/completedAt are written by the inline IIFE in recorder.html.
     // Missing means the inline path failed (or was stripped) and we're cold.
@@ -500,7 +500,7 @@ const Recorder = () => {
           keepAliveLockAbort.current = ac;
           navigator.locks
             .request(
-              "screenity-recorder-keepalive",
+              "zvrrec-recorder-keepalive",
               { mode: "exclusive", signal: ac.signal },
               () => new Promise(() => {}),
             )
@@ -523,8 +523,8 @@ const Recorder = () => {
         } else {
           msPath = "create-fresh";
           navigator.mediaSession.metadata = new window.MediaMetadata({
-            title: "Screenity recording",
-            artist: "Screenity",
+            title: "ZovoRecorder recording",
+            artist: "ZovoRecorder",
           });
           navigator.mediaSession.playbackState = "playing";
           try {
@@ -576,7 +576,7 @@ const Recorder = () => {
       // stop, but persists in multi-mode / slow editor / error paths.
       try {
         const KA =
-          typeof window !== "undefined" ? window.__SCREENITY_KEEPALIVE : null;
+          typeof window !== "undefined" ? window.__ZVR_RECORDER_KEEPALIVE : null;
         if (KA) {
           if (KA.priorityTick) {
             try { clearInterval(KA.priorityTick); } catch {}
@@ -797,8 +797,8 @@ const Recorder = () => {
       // the next save so tests can exercise the in-recorder quota catch.
       // One-shot; fires on whichever index hits next.
       const g = /** @type {any} */ (globalThis);
-      if (g.__screenityForceChunkSaveQuotaError && !g.__screenityForceChunkSaveQuotaError_fired) {
-        g.__screenityForceChunkSaveQuotaError_fired = true;
+      if (g.__zvrrecForceChunkSaveQuotaError && !g.__zvrrecForceChunkSaveQuotaError_fired) {
+        g.__zvrrecForceChunkSaveQuotaError_fired = true;
         const forced = new Error("Forced chunk-save quota error for testing");
         forced.name = "QuotaExceededError";
         throw forced;
@@ -1163,7 +1163,7 @@ const Recorder = () => {
         ...buildStreamDiagInfo("start-gate-timeout"),
         streamingDataReceivedAt: streamingDataReceivedAt.current,
       };
-      console.warn("[Screenity:startRec] stream never became ready", diagInfo);
+      console.warn("[ZovoRecorder:startRec] stream never became ready", diagInfo);
       slLog("start-gate-timeout", diagInfo);
       chrome.storage.local.set({ lastStreamCheckFail: diagInfo });
       resetGateState();
@@ -1241,7 +1241,7 @@ const Recorder = () => {
   }
 
   async function startRecording({ forceMediaRecorder = false } = {}) {
-    if (process.env.SCREENITY_DEV_MODE === "true") {
+    if (process.env.ZVR_RECORDER_DEV_MODE === "true") {
       console.log("[recorder-opfs][recorder] startRecording entry");
     }
     slLog("startRecording-enter", {
@@ -1286,7 +1286,7 @@ const Recorder = () => {
     navigator.storage.persist();
     if (!helperVideoStream.current) {
       const diagInfo = buildStreamDiagInfo("stream-ref-null");
-      console.warn("[Screenity:startRec] helperVideoStream is null", diagInfo);
+      console.warn("[ZovoRecorder:startRec] helperVideoStream is null", diagInfo);
       slLog("startRecording-fail-stream-null", diagInfo);
       chrome.storage.local.set({ lastStreamCheckFail: diagInfo });
       sendRecordingError(
@@ -1299,7 +1299,7 @@ const Recorder = () => {
     const videoTracks = helperVideoStream.current.getVideoTracks();
     if (videoTracks.length === 0) {
       const diagInfo = buildStreamDiagInfo("stream-zero-video-tracks");
-      console.warn("[Screenity:startRec] helperVideoStream has 0 video tracks", diagInfo);
+      console.warn("[ZovoRecorder:startRec] helperVideoStream has 0 video tracks", diagInfo);
       slLog("startRecording-fail-zero-tracks", diagInfo);
       chrome.storage.local.set({ lastStreamCheckFail: diagInfo });
       sendRecordingError("No video tracks available");
@@ -1320,7 +1320,7 @@ const Recorder = () => {
       };
       slLog("startRecording-preflight-ok", diagInfo);
       if (vt.readyState === "ended") {
-        console.warn("[Screenity:startRec] video track present but ended", diagInfo);
+        console.warn("[ZovoRecorder:startRec] video track present but ended", diagInfo);
         slLog("startRecording-fail-track-ended", diagInfo);
         chrome.storage.local.set({ lastStreamCheckFail: diagInfo });
         sendRecordingError(
@@ -1433,7 +1433,7 @@ const Recorder = () => {
 
     chunkWriter.current = null;
     chunkWriterBackend.current = null;
-    if (process.env.SCREENITY_DEV_MODE === "true") {
+    if (process.env.ZVR_RECORDER_DEV_MODE === "true") {
       console.log("[recorder-opfs][recorder] chooseWriter entry", {
         recordingId,
         shouldUseFast,
@@ -1459,7 +1459,7 @@ const Recorder = () => {
         selection = await chooseWriter({ preferOpfs: shouldUseFast });
       }
       endChoose({ backend: selection?.backend, prewarmed: prewarmedMatches });
-      if (process.env.SCREENITY_DEV_MODE === "true") {
+      if (process.env.ZVR_RECORDER_DEV_MODE === "true") {
         console.log("[recorder-opfs][recorder] chooseWriter returned", {
           backend: selection.backend,
           prewarmed: prewarmedMatches,
@@ -1475,7 +1475,7 @@ const Recorder = () => {
         endOpen({ backend: selection.backend, prewarmed: prewarmedMatches });
       } catch (openErr) {
         endOpen({ backend: selection.backend, ok: false });
-        if (process.env.SCREENITY_DEV_MODE === "true") {
+        if (process.env.ZVR_RECORDER_DEV_MODE === "true") {
           console.warn(
             "[recorder-opfs][recorder] writer.open failed",
             selection.backend,
@@ -1510,7 +1510,7 @@ const Recorder = () => {
       endBackendRefSet();
       perfMark("Recorder.preflight.done");
       markStartProgress("preflight-done");
-      if (process.env.SCREENITY_DEV_MODE === "true") {
+      if (process.env.ZVR_RECORDER_DEV_MODE === "true") {
         console.log("[recorder-opfs][recorder] writer-open", {
           backend: selection.backend,
           recordingId,
@@ -1518,7 +1518,7 @@ const Recorder = () => {
         });
       }
     } catch (err) {
-      if (process.env.SCREENITY_DEV_MODE === "true") {
+      if (process.env.ZVR_RECORDER_DEV_MODE === "true") {
         console.error("[recorder-opfs][recorder] chooseWriter path threw", err);
       }
       debugWarn("chooseWriter failed, falling back to direct chunksStore", err);
@@ -1725,10 +1725,10 @@ const Recorder = () => {
           // One-shot; fires on whichever chunk hits next.
           const g = /** @type {any} */ (globalThis);
           if (
-            g.__screenityForceWebCodecsChunkSaveQuotaError &&
-            !g.__screenityForceWebCodecsChunkSaveQuotaError_fired
+            g.__zvrrecForceWebCodecsChunkSaveQuotaError &&
+            !g.__zvrrecForceWebCodecsChunkSaveQuotaError_fired
           ) {
-            g.__screenityForceWebCodecsChunkSaveQuotaError_fired = true;
+            g.__zvrrecForceWebCodecsChunkSaveQuotaError_fired = true;
             const forced = new Error("Forced WebCodecs chunk-save quota for testing");
             forced.name = "QuotaExceededError";
             throw forced;
@@ -2022,7 +2022,7 @@ const Recorder = () => {
                 if (closeResult?.backendRef) {
                   chunkBackendRef.current = closeResult.backendRef;
                 }
-                if (process.env.SCREENITY_DEV_MODE === "true") {
+                if (process.env.ZVR_RECORDER_DEV_MODE === "true") {
                   console.log("[recorder-opfs][recorder] writer-close", {
                     backendRef: chunkBackendRef.current,
                     byteSize: closeResult?.byteSize,
@@ -2682,6 +2682,36 @@ const Recorder = () => {
       pausedAt: null,
       totalPausedMs: 0,
     });
+    try {
+      const { tabRecordedID, activeTab } = await chrome.storage.local.get([
+        "tabRecordedID",
+        "activeTab",
+      ]);
+      const firstTabId = tabRecordedID || activeTab;
+      const firstTab = firstTabId
+        ? await chrome.tabs.get(firstTabId).catch(() => null)
+        : null;
+      let page = "";
+      try {
+        const parsed = new URL(firstTab?.url || "");
+        page = `${parsed.origin}${parsed.pathname}`;
+      } catch {}
+      const firstItem = firstTab
+        ? [{
+            tabId: firstTab.id,
+            title: String(firstTab.title || "Recording started").slice(0, 160),
+            page: page.slice(0, 500),
+            offsetMs: 0,
+          }]
+        : [];
+      await chrome.storage.local.set({
+        "zvrrec.recorder.chapters": {
+          startedAt: recordingStartTime.current,
+          updatedAt: Date.now(),
+          items: firstItem,
+        },
+      });
+    } catch {}
     isStarting.current = false;
     isRecording.current = true;
     startSessionHeartbeat();
@@ -4906,7 +4936,7 @@ const Recorder = () => {
   return (
     <>
       <RecorderUI started={started} isTab={isTab.current} />
-      {process.env.SCREENITY_DEV_MODE === "true" && (
+      {process.env.ZVR_RECORDER_DEV_MODE === "true" && (
         <div
           style={{
             position: "fixed",

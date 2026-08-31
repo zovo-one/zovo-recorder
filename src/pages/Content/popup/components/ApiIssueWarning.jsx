@@ -5,7 +5,7 @@ import { apiIssueCopy } from "../../utils/apiIssueCopy";
 import { NoInternet } from "../../toolbar/components/SVG";
 
 const CLOUD_FEATURES_ENABLED =
-  process.env.SCREENITY_ENABLE_CLOUD_FEATURES === "true";
+  process.env.ZVR_RECORDER_ENABLE_CLOUD_FEATURES === "true";
 
 // Backs off so a long outage doesn't hammer the API, still recovers within
 // seconds of the server coming back.

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="440" height="280" viewBox="0 0 440 280" role="img" aria-labelledby="title desc">
+  <title id="title">Zovo Recorder</title>
+  <desc id="desc">Record the idea, shape the story.</desc>
+  <defs>
+    <linearGradient id="bg" x1="20" y1="10" x2="420" y2="270" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#17152c"/>
+      <stop offset="1" stop-color="#302c57"/>
+    </linearGradient>
+    <linearGradient id="play" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#635bff"/>
+      <stop offset="1" stop-color="#817aff"/>
+    </linearGradient>
+  </defs>
+  <rect width="440" height="280" rx="0" fill="url(#bg)"/>
+  <circle cx="402" cy="28" r="90" fill="#635bff" opacity=".14"/>
+  <circle cx="28" cy="270" r="90" fill="#ff725e" opacity=".12"/>
+  <rect x="36" y="34" width="42" height="42" rx="12" fill="#24213f" stroke="#746cff"/>
+  <path d="M49 47h16v16H49z" fill="none" stroke="#ff725e" stroke-width="3" stroke-linejoin="round"/>
+  <circle cx="57" cy="55" r="5" fill="url(#play)"/>
+  <path d="M55 51.8l5.5 3.2-5.5 3.2z" fill="white"/>
+  <text x="91" y="61" fill="#fff" font-family="Inter,system-ui,sans-serif" font-size="18" font-weight="700">Zovo Recorder</text>
+  <text x="36" y="130" fill="#fff" font-family="Inter,system-ui,sans-serif" font-size="38" font-weight="760" letter-spacing="-1.8">Record the idea.</text>
+  <text x="36" y="173" fill="#8e87ff" font-family="Inter,system-ui,sans-serif" font-size="38" font-weight="760" letter-spacing="-1.8">Shape the story.</text>
+  <text x="37" y="213" fill="#c5c1d5" font-family="Inter,system-ui,sans-serif" font-size="14">Private capture · focused editing · local-first</text>
+  <rect x="36" y="232" width="170" height="3" rx="1.5" fill="#635bff"/>
+  <rect x="210" y="232" width="55" height="3" rx="1.5" fill="#ff725e"/>
+  <g transform="translate(338 172)">
+    <rect width="66" height="66" rx="22" fill="url(#play)"/>
+    <path d="M27 20l22 13-22 13z" fill="#fff"/>
+  </g>
+</svg>

@@ -1,6 +1,5 @@
-// Builds a diagnostic ZIP. Returns { blob, filename }. JSZip lives in
-// the BG (make-zip handler) so the ~100 KB dep doesn't ship into every
-// content script.
+// Builds a diagnostic JSON bundle. Returns { blob, filename }. Assembly lives
+// in the background worker so large diagnostic fields are handled once.
 import { getStartFlowTrace } from "./startFlowTrace";
 
 // Strip user-home paths and URL query/fragments (recording IDs,
@@ -176,7 +175,7 @@ export const buildDiagnosticZip = async ({
     deviceMemory: navigator.deviceMemory || null,
     // Tells a localhost dev build apart from a store build when a report says
     // an API call just failed to fetch.
-    apiBase: process.env.SCREENITY_API_BASE_URL || null,
+    apiBase: process.env.ZVR_RECORDER_API_BASE_URL || null,
   });
 
   files["config.json"] = JSON.stringify({
@@ -235,7 +234,7 @@ export const buildDiagnosticZip = async ({
     files["upload-telemetry.json"] = JSON.stringify(redactPii(uploadTelemetry));
   }
 
-  const filename = `screenity-diagnostics-${ts}.zip`;
+  const filename = `zvrrec-diagnostics-${ts}.zip`;
 
   const resp = await chrome.runtime.sendMessage({
     type: "make-zip",
@@ -252,6 +251,6 @@ export const buildDiagnosticZip = async ({
   const bin = atob(resp.base64);
   const bytes = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  const blob = new Blob([bytes], { type: "application/zip" });
+  const blob = new Blob([bytes], { type: resp.mime || "application/json" });
   return { blob, filename: resp.filename || filename };
 };

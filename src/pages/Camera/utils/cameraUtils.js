@@ -3,7 +3,7 @@ import { setPipMode } from "./uiState";
 import { getUserMediaWithFallback } from "../../utils/mediaDeviceFallback";
 
 const CLOUD_FEATURES_ENABLED =
-  process.env.SCREENITY_ENABLE_CLOUD_FEATURES === "true";
+  process.env.ZVR_RECORDER_ENABLE_CLOUD_FEATURES === "true";
 
 export const getCameraStream = async (
   constraints,
@@ -217,7 +217,7 @@ export const getCameraStream = async (
       const timeoutId = setTimeout(() => {
         if (settled) return;
         console.warn(
-          "[Screenity] Camera loadedmetadata timeout (likely virtual camera); proceeding with defaults",
+          "[ZovoRecorder] Camera loadedmetadata timeout (likely virtual camera); proceeding with defaults",
           {
             readyState: video.readyState,
             videoWidth: video.videoWidth,

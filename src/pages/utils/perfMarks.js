@@ -2,7 +2,7 @@
 // cap, 250ms debounced flush) so user diag zips have the full
 // stop→editor timing. Labels are hardcoded; payloads are caller ints/
 // strings. Console "[perf]" lines stay dev-only.
-const DEV = process.env.SCREENITY_DEV_MODE === "true";
+const DEV = process.env.ZVR_RECORDER_DEV_MODE === "true";
 const ENABLED = true;
 
 const noop = () => {};

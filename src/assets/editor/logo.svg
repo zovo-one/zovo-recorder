@@ -13,10 +13,10 @@
 <path d="M24.1679 12.584C24.1679 17.877 19.877 22.1679 14.584 22.1679C9.29088 22.1679 5 17.877 5 12.584C5 7.29088 9.29088 3 14.584 3C19.877 3 24.1679 7.29088 24.1679 12.584Z" fill="url(#paint0_radial_6723_3733)"/>
 <defs>
 <radialGradient id="paint0_radial_6723_3733" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(11.7937 3) rotate(81.7628) scale(22.8109 22.6709)">
-<stop offset="0.231286" stop-color="#2BAEF8"/>
-<stop offset="0.463542" stop-color="#3582F6"/>
-<stop offset="0.744792" stop-color="#486DEF"/>
-<stop offset="1" stop-color="#7B9AEA"/>
+<stop offset="0.231286" stop-color="#635BFF"/>
+<stop offset="0.463542" stop-color="#746CFF"/>
+<stop offset="0.744792" stop-color="#9A72E8"/>
+<stop offset="1" stop-color="#FF725E"/>
 </radialGradient>
 </defs>
 </svg>

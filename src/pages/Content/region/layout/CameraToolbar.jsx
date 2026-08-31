@@ -6,12 +6,14 @@ import { CameraCloseIcon, CameraMoreIcon } from "../../toolbar/components/SVG";
 
 // Context
 import { contentStateContext } from "../../context/ContentState";
+import CameraPresetControls from "../../camera/components/CameraPresetControls";
 
 const CameraToolbar = () => {
   const [contentState, setContentState] = useContext(contentStateContext);
 
   return (
     <Toolbar.Root className="camera-toolbar">
+      <CameraPresetControls />
       <Toolbar.Button
         className="CameraToolbarButton"
         onClick={() => {

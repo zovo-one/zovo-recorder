@@ -5,7 +5,7 @@ import { lifecycle } from "../../utils/lifecycleLog";
 
 const COUNTDOWN_TIME = 3;
 const DEBUG_START_FLOW =
-  typeof window !== "undefined" ? !!window.SCREENITY_DEBUG_RECORDER : false;
+  typeof window !== "undefined" ? !!window.ZVR_RECORDER_DEBUG_RECORDER : false;
 
 const Countdown = () => {
   const [contentState, setContentState] = useContext(contentStateContext);
@@ -55,7 +55,7 @@ const Countdown = () => {
   const logStartFlow = (event, data = {}) => {
     if (!DEBUG_START_FLOW) return;
     const payload = { ts: Date.now(), event, ...data };
-    console.info("[Screenity][StartFlow]", payload);
+    console.info("[ZovoRecorder][StartFlow]", payload);
     try {
       const update = {
         startFlowDebug: {

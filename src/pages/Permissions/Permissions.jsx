@@ -4,7 +4,7 @@ const Recorder = () => {
   useEffect(() => {
     window.parent.postMessage(
       {
-        type: "screenity-permissions-loaded",
+        type: "zvrrec-permissions-loaded",
       },
       "*"
     );
@@ -17,7 +17,7 @@ const Recorder = () => {
       if (pp && typeof pp.allowsFeature === "function") {
         window.parent.postMessage(
           {
-            type: "screenity-site-policy",
+            type: "zvrrec-site-policy",
             cameraAllowed: pp.allowsFeature("camera"),
             microphoneAllowed: pp.allowsFeature("microphone"),
             displayCaptureAllowed: pp.allowsFeature("display-capture"),
@@ -181,7 +181,7 @@ const Recorder = () => {
     if (!camOk && !micOk) {
       window.parent.postMessage(
         {
-          type: "screenity-permissions",
+          type: "zvrrec-permissions",
           success: false,
           error: lastError?.name || "unknown",
         },
@@ -204,7 +204,7 @@ const Recorder = () => {
 
     window.parent.postMessage(
       {
-        type: "screenity-permissions",
+        type: "zvrrec-permissions",
         success: true,
         audioinput: audioinput,
         audiooutput: audiooutput,
@@ -217,7 +217,7 @@ const Recorder = () => {
   };
 
   const onMessage = (message) => {
-    if (message.type === "screenity-get-permissions") {
+    if (message.type === "zvrrec-get-permissions") {
       checkPermissions();
     }
   };

@@ -57,7 +57,7 @@ const ENABLE_FAST_EMPTY_EDITOR_FAIL = true;
 
 localforage.config({
   driver: localforage.INDEXEDDB,
-  name: "screenity",
+  name: "zvrrec",
   version: 1,
 });
 
@@ -88,7 +88,7 @@ const chunksStore = localforage.createInstance({
 export const ContentStateContext = createContext();
 
 const DEBUG_RECORDER =
-  typeof window !== "undefined" ? !!window.SCREENITY_DEBUG_RECORDER : false;
+  typeof window !== "undefined" ? !!window.ZVR_RECORDER_DEBUG_RECORDER : false;
 const DEBUG_POSTSTOP = DEBUG_RECORDER;
 
 const ContentState = (props) => {
@@ -251,7 +251,7 @@ const ContentState = (props) => {
 
   useEffect(() => {
     if (!DEBUG_RECORDER && !isRecordingDebugEnabled()) return;
-    window.__screenityExportRecordingDebug = async () => {
+    window.__zvrrecExportRecordingDebug = async () => {
       const { recordingDebugSessionId } = await chrome.storage.local.get([
         "recordingDebugSessionId",
       ]);
@@ -265,7 +265,7 @@ const ContentState = (props) => {
         sessionId: recordingDebugSessionId,
       });
     };
-    window.__screenityPingRecdbg = () =>
+    window.__zvrrecPingRecdbg = () =>
       chrome.runtime.sendMessage({ type: "recdbg-ping" });
   }, []);
 
@@ -339,6 +339,8 @@ const ContentState = (props) => {
     reviewEligible: false,
     backupBlob: null,
     recordingMeta: null,
+    annotations: [],
+    autoChapters: [],
   };
 
   const [contentState, _setContentState] = useState(defaultState);
@@ -523,7 +525,7 @@ const ContentState = (props) => {
       const handleStatus = (status) => {
         if (!status || done) return;
         if (DEBUG_POSTSTOP)
-          console.debug("[Screenity][Sandbox] waitForFinalizeReady status", {
+          console.debug("[ZovoRecorder][Sandbox] waitForFinalizeReady status", {
             status,
           });
         const rawPct = typeof status.percent === "number" ? status.percent : 0;
@@ -633,7 +635,7 @@ const ContentState = (props) => {
     if (!readResult || readResult.chunkCount === 0) {
       if (DEBUG_POSTSTOP)
         console.warn(
-          "[Screenity][Sandbox] buildBlobFromChunks: no parts found",
+          "[ZovoRecorder][Sandbox] buildBlobFromChunks: no parts found",
         );
       debugRecordingEventWithSession(recdbgSessionRef.current, "blob-empty", {
         chunkCount: 0,
@@ -643,7 +645,7 @@ const ContentState = (props) => {
     const blob = readResult.blob;
     if (DEBUG_POSTSTOP)
       console.debug(
-        "[Screenity][Sandbox] buildBlobFromChunks: reconstructed blob",
+        "[ZovoRecorder][Sandbox] buildBlobFromChunks: reconstructed blob",
         {
           size: blob.size,
           type: blob.type,
@@ -665,7 +667,7 @@ const ContentState = (props) => {
         minute: "2-digit",
         hour12: true,
       });
-      const fallbackTitle = `Screenity video - ${formattedDate}`;
+      const fallbackTitle = `ZovoRecorder video - ${formattedDate}`;
 
       try {
         const { recordingMeta } = await chrome.storage.local.get([
@@ -909,7 +911,7 @@ const ContentState = (props) => {
     }
     if (blob.type === "video/mp4" || isFastWebm) {
       if (DEBUG_RECORDER)
-        console.log("[Screenity][Sandbox] reconstructVideo: fast path taken", {
+        console.log("[ZovoRecorder][Sandbox] reconstructVideo: fast path taken", {
           size: blob.size,
           type: blob.type,
           isFastWebm,
@@ -994,7 +996,7 @@ const ContentState = (props) => {
     // If recordingDuration is missing or 0, try to probe it from the blob
     if (!recordingDuration || recordingDuration <= 0) {
       console.warn(
-        "[Screenity][WebM] recordingDuration missing or 0, probing from blob",
+        "[ZovoRecorder][WebM] recordingDuration missing or 0, probing from blob",
       );
       try {
         const probeDuration = await new Promise((resolve) => {
@@ -1025,7 +1027,7 @@ const ContentState = (props) => {
           recordingDuration = probeDuration;
         }
       } catch (err) {
-        console.warn("[Screenity][WebM] blob duration probe failed:", err);
+        console.warn("[ZovoRecorder][WebM] blob duration probe failed:", err);
       }
     }
 
@@ -1117,7 +1119,7 @@ const ContentState = (props) => {
         }
       } else {
         console.warn(
-          "[Screenity][WebM] skipping duration fix: safeDuration=0, blob will have broken seek metadata",
+          "[ZovoRecorder][WebM] skipping duration fix: safeDuration=0, blob will have broken seek metadata",
         );
         if (
           contentStateRef.current.updateChrome ||
@@ -1149,7 +1151,7 @@ const ContentState = (props) => {
       }
     } catch (error) {
       console.error(
-        "[Screenity][WebM] duration fix failed, using unfixed blob:",
+        "[ZovoRecorder][WebM] duration fix failed, using unfixed blob:",
         error,
       );
       setContentState((prevState) => ({
@@ -1167,7 +1169,7 @@ const ContentState = (props) => {
         const s = contentStateRef.current;
         if (s?.ready) return;
         console.warn(
-          "[Screenity][WebM] reconstructVideo(blob) safety timeout: forcing ready with raw blob",
+          "[ZovoRecorder][WebM] reconstructVideo(blob) safety timeout: forcing ready with raw blob",
         );
         setContentState((prev) => {
           if (prev.ready) return prev;
@@ -1241,7 +1243,7 @@ const ContentState = (props) => {
     makeVideoCheck.current = true;
     perfMark("Sandbox makeVideoTab.enter", { override: message?.override });
     if (DEBUG_POSTSTOP)
-      console.debug("[Screenity][Sandbox] makeVideoTab invoked", {
+      console.debug("[ZovoRecorder][Sandbox] makeVideoTab invoked", {
         override: message?.override,
       });
     setContentState((prevState) => ({
@@ -1261,7 +1263,7 @@ const ContentState = (props) => {
         "lastRecordingBackendRef",
       ]);
       backendRefForThisLoad = lastRecordingBackendRef;
-      if (process.env.SCREENITY_DEV_MODE === "true") {
+      if (process.env.ZVR_RECORDER_DEV_MODE === "true") {
         console.log(
           "[recorder-opfs][sandbox] makeVideoTab backend",
           lastRecordingBackendRef || { backend: "idb" },
@@ -1349,7 +1351,7 @@ const ContentState = (props) => {
               outputBytes: blob.size,
               attempt,
             });
-            if (process.env.SCREENITY_DEV_MODE === "true") {
+            if (process.env.ZVR_RECORDER_DEV_MODE === "true") {
               console.log("[recorder-opfs][sandbox] opfs-direct-read-ok", {
                 bytes: blob.size,
               });
@@ -1362,7 +1364,7 @@ const ContentState = (props) => {
               err: String(err?.message || err).slice(0, 200),
             });
             console.warn(
-              "[Screenity][Sandbox] OPFS direct read failed",
+              "[ZovoRecorder][Sandbox] OPFS direct read failed",
               { attempt, err },
             );
             // A 0-byte file has nothing to wait for; retrying twice more just
@@ -1392,7 +1394,7 @@ const ContentState = (props) => {
         err: String(err?.message || err).slice(0, 200),
       });
       console.warn(
-        "[Screenity][Sandbox] OPFS direct read failed",
+        "[ZovoRecorder][Sandbox] OPFS direct read failed",
         err,
       );
     }
@@ -1415,7 +1417,7 @@ const ContentState = (props) => {
             bytes: blob.size,
             chunkCount,
           });
-          if (process.env.SCREENITY_DEV_MODE === "true") {
+          if (process.env.ZVR_RECORDER_DEV_MODE === "true") {
             console.log(
               "[recorder-opfs][sandbox] IDB direct read succeeded",
               { bytes: blob.size, chunkCount },
@@ -1469,7 +1471,7 @@ const ContentState = (props) => {
     const safetyCheck = () => {
       const s = contentStateRef.current;
       if (DEBUG_POSTSTOP)
-        console.debug("[Screenity][Sandbox] makeVideoTab: safety-check", {
+        console.debug("[ZovoRecorder][Sandbox] makeVideoTab: safety-check", {
           chunkCount: s?.chunkCount,
           chunkIndex: s?.chunkIndex,
           rawBlob: Boolean(s?.rawBlob),
@@ -1494,7 +1496,7 @@ const ContentState = (props) => {
         if (s?.webm) {
           if (DEBUG_RECORDER)
             console.log(
-              "[Screenity][WebM] safety timeout: webm already set by fix, marking ready",
+              "[ZovoRecorder][WebM] safety timeout: webm already set by fix, marking ready",
             );
           setContentState((prev) => ({
             ...prev,
@@ -1504,7 +1506,7 @@ const ContentState = (props) => {
           }));
         } else {
           console.warn(
-            "[Screenity][WebM] safety timeout: duration fix did not complete in time, using unfixed rawBlob",
+            "[ZovoRecorder][WebM] safety timeout: duration fix did not complete in time, using unfixed rawBlob",
           );
           setContentState((prev) => ({
             ...prev,
@@ -1525,7 +1527,7 @@ const ContentState = (props) => {
     setTimeout(() => {
       if (!contentStateRef.current?.ready) {
         console.warn(
-          "[Screenity][WebM] 60s safety timeout: force-marking ready",
+          "[ZovoRecorder][WebM] 60s safety timeout: force-marking ready",
         );
         safetyCheck();
       }
@@ -1549,7 +1551,7 @@ const ContentState = (props) => {
     (request, sender, sendResponse) => {
       const message = request;
       if (DEBUG_POSTSTOP)
-        console.debug("[Screenity][Sandbox] onChromeMessage", {
+        console.debug("[ZovoRecorder][Sandbox] onChromeMessage", {
           type: message?.type,
           senderTab: sender?.tab?.id,
         });
@@ -1562,7 +1564,7 @@ const ContentState = (props) => {
       }
       if (message.type === "chunk-count") {
         if (DEBUG_POSTSTOP)
-          console.debug("[Screenity][Sandbox] received chunk-count", {
+          console.debug("[ZovoRecorder][Sandbox] received chunk-count", {
             count: message.count,
           });
         diagForward("sandbox-chunk-count-received", {
@@ -1648,7 +1650,7 @@ const ContentState = (props) => {
         }));
       } else if (message.type === "make-video-tab") {
         if (DEBUG_POSTSTOP)
-          console.debug("[Screenity][Sandbox] received make-video-tab");
+          console.debug("[ZovoRecorder][Sandbox] received make-video-tab");
         diagMakeVideoAtRef.current = Date.now();
         diagForward("sandbox-make-video-tab", null);
         makeVideoTab(sendResponse, message);
@@ -1862,7 +1864,7 @@ const ContentState = (props) => {
         ]);
         if (cancelled) return true;
         if (lastRecordingBackendRef?.backend === "opfs") {
-          if (process.env.SCREENITY_DEV_MODE === "true") {
+          if (process.env.ZVR_RECORDER_DEV_MODE === "true") {
             console.log(
               "[recorder-opfs][sandbox] self-trigger makeVideoTab for OPFS backend",
               isRetry ? "(retry)" : "",
@@ -1873,7 +1875,7 @@ const ContentState = (props) => {
         }
         return false;
       } catch (err) {
-        if (process.env.SCREENITY_DEV_MODE === "true") {
+        if (process.env.ZVR_RECORDER_DEV_MODE === "true") {
           console.warn(
             "[recorder-opfs][sandbox] self-trigger failed",
             err,
@@ -2016,14 +2018,14 @@ const ContentState = (props) => {
         const key = `chunks_ready_for:${tabId}`;
         if (changes[key]) {
           if (DEBUG_POSTSTOP)
-            console.debug("[Screenity][Sandbox] storage fallback triggered", {
+            console.debug("[ZovoRecorder][Sandbox] storage fallback triggered", {
               key,
             });
           // guard against localforage throwing where IndexedDB is unavailable
           if (!window.indexedDB) {
             if (DEBUG_POSTSTOP)
               console.warn(
-                "[Screenity][Sandbox] storage fallback: no indexedDB in this context, skipping",
+                "[ZovoRecorder][Sandbox] storage fallback: no indexedDB in this context, skipping",
               );
             return;
           }
@@ -2033,13 +2035,13 @@ const ContentState = (props) => {
               if (!blob) {
                 if (DEBUG_POSTSTOP)
                   console.warn(
-                    "[Screenity][Sandbox] storage fallback: no blob built",
+                    "[ZovoRecorder][Sandbox] storage fallback: no blob built",
                   );
                 return;
               }
               if (DEBUG_POSTSTOP)
                 console.debug(
-                  "[Screenity][Sandbox] storage fallback: blob built",
+                  "[ZovoRecorder][Sandbox] storage fallback: blob built",
                   {
                     size: blob.size,
                   },
@@ -2048,14 +2050,14 @@ const ContentState = (props) => {
             .catch((err) => {
               if (DEBUG_POSTSTOP)
                 console.warn(
-                  "[Screenity][Sandbox] storage fallback build error",
+                  "[ZovoRecorder][Sandbox] storage fallback build error",
                   err,
                 );
             });
         }
       } catch (err) {
         if (DEBUG_POSTSTOP)
-          console.warn("[Screenity][Sandbox] storageListener error", err);
+          console.warn("[ZovoRecorder][Sandbox] storageListener error", err);
       }
     };
 
@@ -2217,8 +2219,8 @@ const ContentState = (props) => {
       const video = document.createElement("video");
       video.preload = "metadata";
       video.onloadedmetadata = async () => {
-        if (process.env.SCREENITY_DEV_MODE === "true") {
-          console.log("[Screenity][cut-debug] updated-blob received", {
+        if (process.env.ZVR_RECORDER_DEV_MODE === "true") {
+          console.log("[ZovoRecorder][cut-debug] updated-blob received", {
             blobSize: blob?.length ?? blob?.size,
             blobIsBlob: blob instanceof Blob,
             measuredDuration: video.duration,
@@ -2315,7 +2317,7 @@ const ContentState = (props) => {
         ffmpegLoaded: true,
         isFfmpegRunning: false,
       }));
-      console.log("[Screenity][Editor] recording-complete sent from ffmpeg-load-error fallback");
+      console.log("[ZovoRecorder][Editor] recording-complete sent from ffmpeg-load-error fallback");
       chrome.runtime.sendMessage({ type: "recording-complete" });
     } else if (event.data.type === "ffmpeg-error") {
       console.warn("FFmpeg error:", {
@@ -2549,7 +2551,7 @@ const ContentState = (props) => {
             : {}),
         };
       });
-      console.log("[Screenity][Editor] recording-complete sent from ffmpeg-load-timeout fallback");
+      console.log("[ZovoRecorder][Editor] recording-complete sent from ffmpeg-load-timeout fallback");
       chrome.runtime.sendMessage({ type: "recording-complete" });
     }, 30000);
 
@@ -2668,8 +2670,8 @@ const ContentState = (props) => {
     const sourceBlob = contentState.blob;
     const opId = beginEditOp();
 
-    if (process.env.SCREENITY_DEV_MODE === "true") {
-      console.log("[Screenity][cut-debug] handleTrim dispatch", {
+    if (process.env.ZVR_RECORDER_DEV_MODE === "true") {
+      console.log("[ZovoRecorder][cut-debug] handleTrim dispatch", {
         cut,
         opId,
         sourceBlobSize: sourceBlob?.size,
@@ -2816,7 +2818,7 @@ const ContentState = (props) => {
     out = out.replace(/\s+/g, " ").trim();
     out = out.replace(/[. ]+$/g, "");
 
-    if (!out) out = "Screenity recording";
+    if (!out) out = "ZovoRecorder recording";
     if (out.length > maxLen) out = out.slice(0, maxLen).trim();
 
     return out;
@@ -2825,7 +2827,7 @@ const ContentState = (props) => {
   const requestDownload = async (url, ext) => {
     // rapid double-click would otherwise create two downloads + double-revoke
     if (contentStateRef.current?.downloadInProgress) {
-      console.warn("[Screenity] download already in progress, ignoring");
+      console.warn("[ZovoRecorder] download already in progress, ignoring");
       return;
     }
     setContentState((prev) => ({
@@ -2834,7 +2836,7 @@ const ContentState = (props) => {
       downloadError: null,
     }));
 
-    const rawTitle = contentStateRef.current.title || "Screenity recording";
+    const rawTitle = contentStateRef.current.title || "ZovoRecorder recording";
 
     const base = sanitizeDownloadFilename(rawTitle);
     const filename = `${base}${ext}`;
@@ -2901,7 +2903,7 @@ const ContentState = (props) => {
         } catch {}
         revoke();
         console.warn(
-          "[Screenity] download status listener timed out, releasing handle",
+          "[ZovoRecorder] download status listener timed out, releasing handle",
           { downloadId, filename, timeoutMs },
         );
         // surface error so editor toasts fire; silent resolve would mask as success
@@ -3052,7 +3054,7 @@ const ContentState = (props) => {
         ? crypto.randomUUID()
         : `${Date.now()}-${Math.random().toString(36).slice(2)}`);
     const devLog =
-      process.env.SCREENITY_DEV_MODE === "true"
+      process.env.ZVR_RECORDER_DEV_MODE === "true"
         ? (label, data) =>
             console.log("[remux][sandbox]", label, data || "")
         : () => {};
@@ -3255,7 +3257,7 @@ const ContentState = (props) => {
       remuxPath = "offscreen-opfs";
       diagForward("remux-offscreen-ok", { inputBytes: inputSize });
     } catch (err) {
-      console.warn("[Screenity] offscreen remux failed, falling back", err);
+      console.warn("[ZovoRecorder] offscreen remux failed, falling back", err);
       diagForward("remux-offscreen-fail", {
         inputBytes: inputSize,
         err: String(err?.message || err).slice(0, 200),
@@ -3275,7 +3277,7 @@ const ContentState = (props) => {
         diagForward("remux-buffer-target-ok", { inputBytes: inputSize });
       } catch (err) {
         console.warn(
-          "[Screenity] buffer-target remux failed, falling back",
+          "[ZovoRecorder] buffer-target remux failed, falling back",
           err,
         );
         diagForward("remux-buffer-target-fail", {
@@ -3458,12 +3460,12 @@ const ContentState = (props) => {
         remuxedBlob = null;
       }
     } catch (err) {
-      console.warn("[Screenity] standard mp4 finalize failed", err);
+      console.warn("[ZovoRecorder] standard mp4 finalize failed", err);
     }
 
     const remuxDurationMs = Date.now() - remuxStartedAt;
     const finalPath = remuxPath || "fmp4-fallback";
-    if (process.env.SCREENITY_DEV_MODE === "true") {
+    if (process.env.ZVR_RECORDER_DEV_MODE === "true") {
       console.log("[remux][sandbox] summary", {
         path: finalPath,
         durationMs: remuxDurationMs,
@@ -3648,7 +3650,7 @@ const ContentState = (props) => {
         webmBlob = out?.blob || null;
       } catch (err) {
         console.warn(
-          "[Screenity] offscreen webm convert failed, falling back",
+          "[ZovoRecorder] offscreen webm convert failed, falling back",
           err,
         );
       }
@@ -3660,7 +3662,7 @@ const ContentState = (props) => {
         await requestDownload(url, ext);
         URL.revokeObjectURL(url);
       } catch (err) {
-        console.error("[Screenity] webm download failed", err);
+        console.error("[ZovoRecorder] webm download failed", err);
       }
       setContentState((prevState) => ({
         ...prevState,
@@ -3721,7 +3723,7 @@ const ContentState = (props) => {
         await requestDownload(url, ext);
         URL.revokeObjectURL(url);
       } catch (err) {
-        console.error("[Screenity] webm fallback download failed", err);
+        console.error("[ZovoRecorder] webm fallback download failed", err);
       }
       setContentState((prevState) => ({
         ...prevState,
@@ -3803,7 +3805,7 @@ const ContentState = (props) => {
   return (
     <ContentStateContext.Provider value={[contentState, setContentState]}>
       {props.children}
-      {process.env.SCREENITY_DEV_MODE === "true" && (
+      {process.env.ZVR_RECORDER_DEV_MODE === "true" && (
         <DevHUD
           setContentState={setContentState}
           contentStateRef={contentStateRef}

@@ -1,7 +1,7 @@
 import { createTab } from "./createTab";
 import { focusTab } from "./focusTab";
 
-const APP_BASE_URL = process.env.SCREENITY_APP_BASE;
+const APP_BASE_URL = process.env.ZVR_RECORDER_APP_BASE;
 const EDITOR_TAB_META_KEY = "editorTabMeta";
 
 const toUrl = (value) => {
@@ -64,7 +64,7 @@ export const clearEditorTabReference = async (reason = "unknown", extra = {}) =>
     editorTab: null,
     [EDITOR_TAB_META_KEY]: null,
   });
-  console.info("[Screenity][BG] Cleared editorTab reference", {
+  console.info("[ZovoRecorder][BG] Cleared editorTab reference", {
     reason,
     ...extra,
   });
@@ -119,7 +119,7 @@ export const setEditorTabReference = async ({
     [EDITOR_TAB_META_KEY]: meta,
   });
 
-  console.info("[Screenity][BG] Stored editorTab reference", {
+  console.info("[ZovoRecorder][BG] Stored editorTab reference", {
     tabId,
     ...meta,
   });
@@ -277,14 +277,14 @@ const resolveEditorTabForTargetImpl = async ({
       kind,
     });
     if (!focused) {
-      console.warn("[Screenity][BG] Failed to focus validated editor tab", {
+      console.warn("[ZovoRecorder][BG] Failed to focus validated editor tab", {
         reason,
         tabId: existing.tab.id,
         projectId,
         kind,
       });
     } else {
-      console.info("[Screenity][BG] Reusing validated editor tab", {
+      console.info("[ZovoRecorder][BG] Reusing validated editor tab", {
         reason,
         tabId: existing.tab.id,
         projectId,
@@ -295,7 +295,7 @@ const resolveEditorTabForTargetImpl = async ({
     // mid tab-drag, and falling through here opened a duplicate tab.
     return { tabId: existing.tab.id, reused: true, opened: false };
   } else {
-    console.info("[Screenity][BG] Stored editor tab not reusable", {
+    console.info("[ZovoRecorder][BG] Stored editor tab not reusable", {
       reason,
       projectId,
       kind,
@@ -304,7 +304,7 @@ const resolveEditorTabForTargetImpl = async ({
   }
 
   if (!targetUrl) {
-    console.warn("[Screenity][BG] Cannot open fallback editor tab: missing URL", {
+    console.warn("[ZovoRecorder][BG] Cannot open fallback editor tab: missing URL", {
       reason,
       projectId,
       kind,
@@ -314,7 +314,7 @@ const resolveEditorTabForTargetImpl = async ({
 
   const createdTab = await createTab(targetUrl, focus);
   if (!createdTab?.id) {
-    console.warn("[Screenity][BG] Failed to open fallback editor tab", {
+    console.warn("[ZovoRecorder][BG] Failed to open fallback editor tab", {
       reason,
       targetUrl,
       projectId,
@@ -337,7 +337,7 @@ const resolveEditorTabForTargetImpl = async ({
     });
   }
 
-  console.info("[Screenity][BG] Opened fallback editor tab", {
+  console.info("[ZovoRecorder][BG] Opened fallback editor tab", {
     reason,
     tabId: createdTab.id,
     targetUrl,

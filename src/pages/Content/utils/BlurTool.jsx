@@ -24,9 +24,9 @@ const BlurTool = () => {
     if (!contentState.showExtension) {
       setShowOutline(false);
       // Remove blur from all elements
-      const elements = document.querySelectorAll(".screenity-blur");
+      const elements = document.querySelectorAll(".zvrrec-blur");
       elements.forEach((element) => {
-        element.classList.remove("screenity-blur");
+        element.classList.remove("zvrrec-blur");
       });
     }
   }, [contentState.showExtension]);
@@ -61,8 +61,8 @@ const BlurTool = () => {
       }
       const target = event.target;
       if (
-        !target.classList.contains("screenity-outline") &&
-        !target.closest("#screenity-ui #screenity-ui *")
+        !target.classList.contains("zvrrec-outline") &&
+        !target.closest("#zvrrec-ui #zvrrec-ui *")
       ) {
         updateOutline(target);
         document.body.style.cursor = "pointer";
@@ -85,7 +85,7 @@ const BlurTool = () => {
       }
 
       const target = event.target;
-      if (target.closest("#screenity-ui, #screenity-ui *")) {
+      if (target.closest("#zvrrec-ui, #zvrrec-ui *")) {
         return;
       }
 
@@ -100,13 +100,13 @@ const BlurTool = () => {
       }
 
       const target = event.target;
-      if (target.closest("#screenity-ui, #screenity-ui *")) {
+      if (target.closest("#zvrrec-ui, #zvrrec-ui *")) {
         return;
       }
 
       event.preventDefault();
       event.stopPropagation();
-      target.classList.toggle("screenity-blur");
+      target.classList.toggle("zvrrec-blur");
     };
 
     const handleMouseUp = (event) => {
@@ -117,7 +117,7 @@ const BlurTool = () => {
       }
 
       const target = event.target;
-      if (target.closest("#screenity-ui, #screenity-ui *")) {
+      if (target.closest("#zvrrec-ui, #zvrrec-ui *")) {
         return;
       }
       event.preventDefault();
@@ -156,7 +156,7 @@ const BlurTool = () => {
     <div>
       {showOutline && outlineRect && (
         <div
-          className="screenity-outline"
+          className="zvrrec-outline"
           style={{
             top: outlineRect.top + "px",
             left: outlineRect.left + "px",

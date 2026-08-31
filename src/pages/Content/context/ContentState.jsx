@@ -67,17 +67,17 @@ const STOP_BEEP_DEDUPE_MS = 5000;
 const ContentState = (props) => {
   const [timer, setTimerInternal] = React.useState(0);
   const CLOUD_FEATURES_ENABLED =
-    process.env.SCREENITY_ENABLE_CLOUD_FEATURES === "true";
+    process.env.ZVR_RECORDER_ENABLE_CLOUD_FEATURES === "true";
   setTimer = setTimerInternal;
   const [URL] = useState(
-    "https://help.screenity.io/getting-started/77KizPC8MHVGfpKpqdux9D/why-does-screenity-ask-for-permissions/9AAE8zJ6iiUtCAtjn4SUT1",
+    "https://zovo.one/getting-started/77KizPC8MHVGfpKpqdux9D/why-does-zvrrec-ask-for-permissions/9AAE8zJ6iiUtCAtjn4SUT1",
   );
   const [URL2] = useState(
-    "https://help.screenity.io/troubleshooting/9Jy5RGjNrBB42hqUdREQ7W/how-to-grant-screenity-permission-to-record-your-camera-and-microphone/x6U69TnrbMjy5CQ96Er2E9",
+    "https://zovo.one/troubleshooting/9Jy5RGjNrBB42hqUdREQ7W/how-to-grant-zvrrec-permission-to-record-your-camera-and-microphone/x6U69TnrbMjy5CQ96Er2E9",
   );
   const startBeepRef = useRef(null);
   const stopBeepRef = useRef(null);
-  // True while the "can't reach Screenity" modal is the one on screen, so it
+  // True while the "can't reach ZovoRecorder" modal is the one on screen, so it
   // can close itself when the API answers again.
   const apiIssueModalRef = useRef(false);
   const prevRecordingRef = useRef(null);
@@ -176,7 +176,7 @@ const ContentState = (props) => {
     setContentState((prev) => ({
       ...prev,
       isLoggedIn: result.authenticated,
-      screenityUser: result.user,
+      zvrrecUser: result.user,
       isSubscribed: result.subscribed,
       hasSubscribedBefore: result.hasSubscribedBefore,
       proSubscription: result.proSubscription,
@@ -398,9 +398,9 @@ const ContentState = (props) => {
             cursorEffects: [],
           }),
     }));
-    const elements = document.querySelectorAll(".screenity-blur");
+    const elements = document.querySelectorAll(".zvrrec-blur");
     elements.forEach((element) => {
-      element.classList.remove("screenity-blur");
+      element.classList.remove("zvrrec-blur");
     });
     perfMark("Content stop-click", { reason: "content-toolbar-stop" });
     // Play the stop beep on click, not via the recording-state effect.
@@ -547,9 +547,9 @@ const ContentState = (props) => {
       cursorMode: "none",
       cursorEffects: [],
     }));
-    const elements = document.querySelectorAll(".screenity-blur");
+    const elements = document.querySelectorAll(".zvrrec-blur");
     elements.forEach((element) => {
-      element.classList.remove("screenity-blur");
+      element.classList.remove("zvrrec-blur");
     });
     setTimer(0);
   });
@@ -700,7 +700,7 @@ const ContentState = (props) => {
           chrome.i18n.getMessage("manageStorageButtonLabel"),
           chrome.i18n.getMessage("closeModalLabel"),
           () => {
-            window.open(process.env.SCREENITY_APP_BASE, "_blank");
+            window.open(process.env.ZVR_RECORDER_APP_BASE, "_blank");
           },
           () => {},
         );
@@ -718,7 +718,7 @@ const ContentState = (props) => {
             ...prev,
             isSubscribed: false,
             isLoggedIn: false,
-            screenityUser: null,
+            zvrrecUser: null,
             proSubscription: null,
           }));
         }
@@ -819,7 +819,7 @@ const ContentState = (props) => {
         let clear = null;
         let clearAction = () => {};
         const helpURL =
-          "https://help.screenity.io/troubleshooting/9Jy5RGjNrBB42hqUdREQ7W/what-does-%E2%80%9Cmemory-limit-reached%E2%80%9D-mean-when-recording/8WkwHbt3puuXunYqQnyPcb";
+          "https://zovo.one/troubleshooting/9Jy5RGjNrBB42hqUdREQ7W/what-does-%E2%80%9Cmemory-limit-reached%E2%80%9D-mean-when-recording/8WkwHbt3puuXunYqQnyPcb";
 
         const response = await chrome.runtime.sendMessage({
           type: "check-restore",
@@ -1169,14 +1169,14 @@ const ContentState = (props) => {
 
   useEffect(() => {
     const handleMessage = (event) => {
-      if (event.data.type === "screenity-permissions") {
+      if (event.data.type === "zvrrec-permissions") {
         handleDevicePermissions(event.data);
-      } else if (event.data.type === "screenity-permissions-loaded") {
+      } else if (event.data.type === "zvrrec-permissions-loaded") {
         setContentState((prevContentState) => ({
           ...prevContentState,
           permissionsLoaded: true,
         }));
-      } else if (event.data.type === "screenity-site-policy") {
+      } else if (event.data.type === "zvrrec-site-policy") {
         // Accurate host-page Permissions-Policy read from the cross-origin
         // permissions.html iframe: feature=(self) (e.g. facebook.com) blocks
         // our iframe even though the top-page probe above sees it as allowed.
@@ -1285,6 +1285,9 @@ const ContentState = (props) => {
       y: 100,
     },
     cameraFlipped: false,
+    cameraShape: "circle",
+    cameraPositionPreset: "custom",
+    cameraPresetTick: 0,
     backgroundEffect: "blur",
     backgroundEffectsActive: false,
     countdown: true,
@@ -2010,8 +2013,8 @@ const ContentState = (props) => {
           changes.recordingBeepTabId.newValue ?? null;
       }
       if (
-        changes.screenityToken ||
-        changes.screenityUser ||
+        changes.zvrrecToken ||
+        changes.zvrrecUser ||
         changes.isSubscribed ||
         changes.proSubscription ||
         changes.lastAuthCheck ||
@@ -2101,8 +2104,8 @@ const ContentState = (props) => {
         // Match the old stop handler's DOM cleanup; pre-clear blur
         // overlays in case they survived the React tree teardown.
         try {
-          const elements = document.querySelectorAll(".screenity-blur");
-          elements.forEach((el) => el.classList.remove("screenity-blur"));
+          const elements = document.querySelectorAll(".zvrrec-blur");
+          elements.forEach((el) => el.classList.remove("zvrrec-blur"));
         } catch {}
       }
       if (changes.recording) {
@@ -2256,8 +2259,8 @@ const ContentState = (props) => {
   }, [contentState.hideToolbar, contentState.hideUI]);
 
   useEffect(() => {
-    if (window.__screenitySetupHandlersInitialized) return;
-    window.__screenitySetupHandlersInitialized = true;
+    if (window.__zvrrecSetupHandlersInitialized) return;
+    window.__zvrrecSetupHandlersInitialized = true;
     setupHandlers();
   }, []);
 
@@ -2324,7 +2327,7 @@ const ContentState = (props) => {
 
     const elements = shadowRoot.querySelectorAll("*");
     elements.forEach((element) => {
-      element.classList.add("screenity-scrollbar");
+      element.classList.add("zvrrec-scrollbar");
     });
 
     const observer = new MutationObserver((mutationsList) => {
@@ -2335,13 +2338,13 @@ const ContentState = (props) => {
 
           addedNodes.forEach((node) => {
             if (node.nodeType === Node.ELEMENT_NODE) {
-              node.classList.add("screenity-scrollbar");
+              node.classList.add("zvrrec-scrollbar");
             }
           });
 
           removedNodes.forEach((node) => {
             if (node.nodeType === Node.ELEMENT_NODE) {
-              node.classList.remove("screenity-scrollbar");
+              node.classList.remove("zvrrec-scrollbar");
             }
           });
         }
@@ -2432,7 +2435,7 @@ const ContentState = (props) => {
       <timerContext.Provider value={timerValue}>
         {props.children}
         <Shortcuts shortcuts={contentState.shortcuts} />
-        {process.env.SCREENITY_DEV_MODE === "true" && (
+        {process.env.ZVR_RECORDER_DEV_MODE === "true" && (
           <DevHUD contentStateRef={contentStateRef} setContentState={setContentState} />
         )}
       </timerContext.Provider>

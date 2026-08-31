@@ -5,10 +5,10 @@
 </g>
 <defs>
 <radialGradient id="paint0_radial_6516_510" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(21.2658 1.41795e-06) rotate(81.7628) scale(71.4033 70.9651)">
-<stop offset="0.231286" stop-color="#2BAEF8"/>
-<stop offset="0.463542" stop-color="#3582F6"/>
-<stop offset="0.744792" stop-color="#486DEF"/>
-<stop offset="1" stop-color="#7B9AEA"/>
+<stop offset="0.231286" stop-color="#635BFF"/>
+<stop offset="0.463542" stop-color="#746CFF"/>
+<stop offset="0.744792" stop-color="#9A72E8"/>
+<stop offset="1" stop-color="#FF725E"/>
 </radialGradient>
 <clipPath id="clip0_6516_510">
 <rect width="60" height="60" fill="white"/>

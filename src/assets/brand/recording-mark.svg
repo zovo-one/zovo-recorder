@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Recording active">
+  <rect width="512" height="512" rx="116" fill="#17152C"/>
+  <path d="M126 214v-48c0-22 18-40 40-40h48M298 126h48c22 0 40 18 40 40v48M386 298v48c0 22-18 40-40 40h-48M214 386h-48c-22 0-40-18-40-40v-48" fill="none" stroke="#FF725E" stroke-width="34" stroke-linecap="round"/>
+  <circle cx="256" cy="256" r="82" fill="#FF725E"/>
+</svg>

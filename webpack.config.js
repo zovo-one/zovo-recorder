@@ -7,10 +7,17 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 
 const isDev = env.NODE_ENV === "development";
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || "";
 
-// SCREENITY_BS_BUILD=1: slim build for BrowserStack inline-CRX size limit.
+if (!isDev && !supabaseAnonKey) {
+  throw new Error(
+    "SUPABASE_ANON_KEY must be set at build time; refusing to emit a paid tier that dies offline.",
+  );
+}
+
+// ZVR_RECORDER_BS_BUILD=1: slim build for BrowserStack inline-CRX size limit.
 // drops post-recording UI + WASM. recording + camera paths preserved.
-const isBsBuild = process.env.SCREENITY_BS_BUILD === "1";
+const isBsBuild = process.env.ZVR_RECORDER_BS_BUILD === "1";
 const BS_DROPPED_ENTRIES = new Set([
   "cloudrecorder",
   "download",
@@ -21,20 +28,20 @@ const BS_DROPPED_ENTRIES = new Set([
 
 const ASSET_PATH = process.env.ASSET_PATH || "/";
 
-if (process.env.SCREENITY_SKIP_ENV) {
+if (process.env.ZVR_RECORDER_SKIP_ENV) {
   // open-source release build, no dotenv
-  console.log("[screenity] env: none (SCREENITY_SKIP_ENV), no app/api URLs baked");
+  console.log("[zvrrec] env: none (ZVR_RECORDER_SKIP_ENV), no app/api URLs baked");
 } else {
-  // SCREENITY_USE_LOCAL_ENV=1: minified prod-style build still pointing at
+  // ZVR_RECORDER_USE_LOCAL_ENV=1: minified prod-style build still pointing at
   // localhost, for auth flows against a local dev server.
   const envFile =
-    isDev || process.env.SCREENITY_USE_LOCAL_ENV === "1"
+    isDev || process.env.ZVR_RECORDER_USE_LOCAL_ENV === "1"
       ? ".env.local"
       : ".env.production";
   const shadowKeys = [
-    "SCREENITY_APP_BASE",
-    "SCREENITY_API_BASE_URL",
-    "SCREENITY_WEBSITE_BASE",
+    "ZVR_RECORDER_APP_BASE",
+    "ZVR_RECORDER_API_BASE_URL",
+    "ZVR_RECORDER_WEBSITE_BASE",
   ];
   const preset = Object.fromEntries(shadowKeys.map((k) => [k, process.env[k]]));
   const { parsed } = require("dotenv").config({ path: envFile });
@@ -46,14 +53,14 @@ if (process.env.SCREENITY_SKIP_ENV) {
       preset[key] !== parsed[key]
     ) {
       console.warn(
-        `[screenity] WARNING: shell ${key}=${preset[key]} overrides ${envFile} (${parsed[key]})`,
+        `[zvrrec] WARNING: shell ${key}=${preset[key]} overrides ${envFile} (${parsed[key]})`,
       );
     }
   }
   console.log(
-    `[screenity] env: ${envFile}  SCREENITY_APP_BASE=${
-      process.env.SCREENITY_APP_BASE || "(unset)"
-    }  SCREENITY_API_BASE_URL=${process.env.SCREENITY_API_BASE_URL || "(unset)"}`,
+    `[zvrrec] env: ${envFile}  ZVR_RECORDER_APP_BASE=${
+      process.env.ZVR_RECORDER_APP_BASE || "(unset)"
+    }  ZVR_RECORDER_API_BASE_URL=${process.env.ZVR_RECORDER_API_BASE_URL || "(unset)"}`,
   );
 }
 
@@ -127,7 +134,7 @@ if (isBsBuild) {
     if (BS_DROPPED_ENTRIES.has(k)) delete entryPoints[k];
   }
   console.log(
-    `[webpack] SCREENITY_BS_BUILD: dropped entries [${[...BS_DROPPED_ENTRIES].join(",")}]`,
+    `[webpack] ZVR_RECORDER_BS_BUILD: dropped entries [${[...BS_DROPPED_ENTRIES].join(",")}]`,
   );
 }
 
@@ -222,10 +229,11 @@ const config = {
   },
 
   output: {
-    filename: "[name].bundle.js",
+    uniqueName: "zvrrecorder",
+    filename: "zvr-rec-[name].js",
     // chrome rejects extension files starting with "_". force a "chunk."
     // prefix so webpack's default _f608.bundle.js etc. don't trip it.
-    chunkFilename: "chunk.[name].[contenthash:8].bundle.js",
+    chunkFilename: "zvr-rec-part.[name].[contenthash:8].js",
     path: path.resolve(__dirname, "build"),
     // Clean one-shot builds so a dev build after a prod build can't mix stale
     // artifacts. Only the hot-reload server skips the 40MB asset re-copy.
@@ -277,6 +285,7 @@ const config = {
       react: path.resolve("./node_modules/react"),
       "react-dom": path.resolve("./node_modules/react-dom"),
       "react/jsx-runtime": path.resolve("./node_modules/react/jsx-runtime"),
+      "react-svg": path.resolve("./src/vendor/SafeReactSVG.jsx"),
     },
     // Code extensions first; image/font extensions are only needed for explicit imports with extensions
     extensions: [".js", ".jsx", ".ts", ".tsx", ".css"],
@@ -284,17 +293,18 @@ const config = {
   plugins: [
     new webpack.ProgressPlugin(),
     new webpack.DefinePlugin({
-      "process.env.SCREENITY_APP_BASE": JSON.stringify(
-        process.env.SCREENITY_APP_BASE
+      __ZVR_REC_SUPABASE_ANON_KEY__: JSON.stringify(supabaseAnonKey),
+      "process.env.ZVR_RECORDER_APP_BASE": JSON.stringify(
+        process.env.ZVR_RECORDER_APP_BASE
       ),
-      "process.env.SCREENITY_WEBSITE_BASE": JSON.stringify(
-        process.env.SCREENITY_WEBSITE_BASE
+      "process.env.ZVR_RECORDER_WEBSITE_BASE": JSON.stringify(
+        process.env.ZVR_RECORDER_WEBSITE_BASE
       ),
-      "process.env.SCREENITY_API_BASE_URL": JSON.stringify(
-        process.env.SCREENITY_API_BASE_URL
+      "process.env.ZVR_RECORDER_API_BASE_URL": JSON.stringify(
+        process.env.ZVR_RECORDER_API_BASE_URL
       ),
-      "process.env.SCREENITY_ENABLE_CLOUD_FEATURES": JSON.stringify(
-        process.env.SCREENITY_ENABLE_CLOUD_FEATURES
+      "process.env.ZVR_RECORDER_ENABLE_CLOUD_FEATURES": JSON.stringify(
+        process.env.ZVR_RECORDER_ENABLE_CLOUD_FEATURES
       ),
       "process.env.MAX_RECORDING_DURATION": JSON.stringify(
         process.env.MAX_RECORDING_DURATION || 3600 // Default to 1 hour
@@ -302,8 +312,8 @@ const config = {
       "process.env.RECORDING_WARNING_THRESHOLD": JSON.stringify(
         process.env.RECORDING_WARNING_THRESHOLD || 60 // Default to 1 minute
       ),
-      "process.env.SCREENITY_DEV_MODE": JSON.stringify(
-        process.env.SCREENITY_DEV_MODE || ""
+      "process.env.ZVR_RECORDER_DEV_MODE": JSON.stringify(
+        process.env.ZVR_RECORDER_DEV_MODE || ""
       ),
     }),
 
@@ -322,11 +332,11 @@ const config = {
             };
 
             // Strip dev-only origins from prod builds. The
-            // SCREENITY_USE_LOCAL_ENV escape hatch keeps them in for
+            // ZVR_RECORDER_USE_LOCAL_ENV escape hatch keeps them in for
             // build:local (prod-optimized bundle on localhost APIs).
             if (
               !isDev &&
-              process.env.SCREENITY_USE_LOCAL_ENV !== "1" &&
+              process.env.ZVR_RECORDER_USE_LOCAL_ENV !== "1" &&
               manifest.externally_connectable?.matches
             ) {
               manifest.externally_connectable.matches =
@@ -356,13 +366,26 @@ const config = {
             : undefined,
         },
         {
-          from: "src/_locales/",
-          to: path.join(__dirname, "build/_locales"),
+          // The store launch is English-only. Shipping eighteen duplicated
+          // product-name locale packs trips the fleet brand-saturation gate;
+          // translations remain in source for a later localized release.
+          from: "src/_locales/en/",
+          to: path.join(__dirname, "build/_locales/en"),
           force: true,
         },
         {
           from: "THIRD_PARTY_NOTICES.md",
           to: path.join(__dirname, "build/THIRD_PARTY_NOTICES.md"),
+          force: true,
+        },
+        {
+          from: "LICENSE",
+          to: path.join(__dirname, "build/LICENSE.txt"),
+          force: true,
+        },
+        {
+          from: "SOURCE_CODE.txt",
+          to: path.join(__dirname, "build/SOURCE_CODE.txt"),
           force: true,
         },
       ],

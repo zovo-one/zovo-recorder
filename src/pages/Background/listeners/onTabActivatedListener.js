@@ -1,5 +1,6 @@
 import { sendMessageTab } from "../tabManagement";
 import { sendMessageEnsuringContentScript } from "../utils/executeScripts";
+import { captureActivatedTabChapter } from "../chapters/autoChapters";
 
 export const handleTabActivation = async (activeInfo) => {
   try {
@@ -32,6 +33,12 @@ export const handleTabActivation = async (activeInfo) => {
       recording || (recorderSession && recorderSession.status === "recording");
 
     if (isActivelyRecording) {
+      await captureActivatedTabChapter(tab, {
+        recordingStartTime,
+        paused,
+        pausedAt,
+        totalPausedMs,
+      });
       // Check if region recording and if the current tab is the recording tab
       const { tabRecordedID, region, customRegion, recordingType } =
         await chrome.storage.local.get([

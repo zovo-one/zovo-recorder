@@ -3,8 +3,8 @@ import { diagEvent } from "../../utils/diagnosticLog";
 import { loginWithWebsite } from "../auth/loginWithWebsite";
 
 const CLOUD_FEATURES_ENABLED =
-  process.env.SCREENITY_ENABLE_CLOUD_FEATURES === "true";
-const APP_BASE = process.env.SCREENITY_APP_BASE;
+  process.env.ZVR_RECORDER_ENABLE_CLOUD_FEATURES === "true";
+const APP_BASE = process.env.ZVR_RECORDER_APP_BASE;
 // debounce in-tab triggers so navigation chatter doesn't hammer /auth/refresh
 const APP_AUTH_REFRESH_DEBOUNCE_MS = 10_000;
 // A login the user just started is worth polling harder, but /auth/refresh
@@ -20,7 +20,7 @@ const tryAppAuthRefresh = async (url) => {
     isLoggedIn,
     wasLoggedIn,
     hasSubscribedBefore,
-    screenityUser,
+    zvrrecUser,
     stayLoggedOut,
     loginPendingAt,
     loginTabId,
@@ -28,7 +28,7 @@ const tryAppAuthRefresh = async (url) => {
     "isLoggedIn",
     "wasLoggedIn",
     "hasSubscribedBefore",
-    "screenityUser",
+    "zvrrecUser",
     "stayLoggedOut",
     "loginPendingAt",
     "loginTabId",
@@ -47,7 +47,7 @@ const tryAppAuthRefresh = async (url) => {
     loginPending ||
     Boolean(wasLoggedIn) ||
     Boolean(hasSubscribedBefore) ||
-    Boolean(screenityUser);
+    Boolean(zvrrecUser);
   if (!hasPriorSignals) return;
   const debounceMs = loginPending
     ? LOGIN_PENDING_DEBOUNCE_MS

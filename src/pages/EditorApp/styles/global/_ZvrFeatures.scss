@@ -1,0 +1,163 @@
+.zvrrecAnnotationOverlay {
+  position: absolute;
+  inset: 0 0 52px;
+  z-index: 4;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.zvrrecAnnotation {
+  position: absolute;
+  transform: translate(0, 0);
+}
+
+.zvrrecAnnotation--text {
+  max-width: 68%;
+  padding: 8px 11px;
+  border-left: 4px solid var(--annotation-color);
+  border-radius: 8px;
+  background: rgb(17 20 35 / 82%);
+  color: #fff;
+  font: 700 clamp(13px, 2vw, 24px)/1.3 system-ui, sans-serif;
+  box-shadow: 0 8px 28px rgb(0 0 0 / 28%);
+}
+
+.zvrrecAnnotation--box {
+  width: 32%;
+  height: 26%;
+  border: 5px solid var(--annotation-color);
+  border-radius: 10px;
+  box-shadow: 0 0 0 9999px rgb(0 0 0 / 16%);
+}
+
+.zvrrecAnnotation--arrow {
+  width: 28%;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--annotation-color);
+  transform-origin: left center;
+}
+
+.zvrrecAnnotation--arrow::after {
+  content: "";
+  position: absolute;
+  right: -2px;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  border-top: 6px solid var(--annotation-color);
+  border-right: 6px solid var(--annotation-color);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.zvrrecAnnotations,
+.zvrrecChapters {
+  margin: 0 0 14px;
+  padding: 14px;
+  border: 1px solid #e7e4f5;
+  border-radius: 16px;
+  background: #fbfaff;
+  color: #202033;
+  font: 12px/1.4 system-ui, sans-serif;
+}
+
+.zvrrecAnnotations__title,
+.zvrrecChapters__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.zvrrecAnnotations__title span,
+.zvrrecChapters__header span {
+  display: block;
+  color: #6e6980;
+  font-size: 11px;
+}
+
+.zvrrecAnnotations__controls {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 8px;
+}
+
+.zvrrecAnnotations input,
+.zvrrecAnnotations select,
+.zvrrecAnnotations button,
+.zvrrecChapters button {
+  min-height: 32px;
+  border: 1px solid #dcd7f1;
+  border-radius: 9px;
+  background: #fff;
+  color: #292541;
+  font: 600 11px system-ui, sans-serif;
+}
+
+.zvrrecAnnotations label {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 6px;
+}
+
+.zvrrecAnnotations ul,
+.zvrrecChapters ol {
+  max-height: 144px;
+  margin: 10px 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+}
+
+.zvrrecAnnotations li,
+.zvrrecChapters li button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 8px;
+}
+
+.zvrrecAnnotations li + li,
+.zvrrecChapters li + li {
+  margin-top: 6px;
+}
+
+.zvrrecAnnotations__export {
+  width: 100%;
+  margin-top: 10px;
+  border: 0 !important;
+  background: #635bff !important;
+  color: #fff !important;
+  cursor: pointer;
+}
+
+.zvrrecAnnotations__export:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.zvrrecChapters__header > div:last-child {
+  display: flex;
+  gap: 6px;
+}
+
+.zvrrecChapters li button {
+  padding: 7px 8px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.zvrrecChapters time {
+  color: #635bff;
+  font-variant-numeric: tabular-nums;
+}
+
+.zvrrecChapters li span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -6,13 +6,13 @@ const GradientBackground = ({ subtle = false }) => {
   return (
     <div
       className={
-        "screenity-wave-bg" + (subtle ? " screenity-wave-bg--subtle" : "")
+        "zvrrec-wave-bg" + (subtle ? " zvrrec-wave-bg--subtle" : "")
       }
       aria-hidden="true"
     >
       <style>
         {`
-          .screenity-wave-bg {
+          .zvrrec-wave-bg {
             position: absolute;
             top: 0;
             left: 0;
@@ -23,7 +23,7 @@ const GradientBackground = ({ subtle = false }) => {
             z-index: -1;
             background-color: #FAFBFE;
           }
-          .screenity-wave-bg::before {
+          .zvrrec-wave-bg::before {
             content: "";
             position: absolute;
             top: 0;
@@ -42,7 +42,7 @@ const GradientBackground = ({ subtle = false }) => {
             -webkit-mask-repeat: no-repeat;
             mask-repeat: no-repeat;
           }
-          .screenity-wave-bg--subtle::before {
+          .zvrrec-wave-bg--subtle::before {
             opacity: 0.28;
           }
         `}

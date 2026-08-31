@@ -69,7 +69,7 @@ const EditorNav = () => {
             chrome.runtime.sendMessage({ type: "open-home" });
           }}
         >
-          <img src={URL + "editor/logo.svg"} alt="Logo" />
+          <img src={URL + "brand/wordmark.svg"} alt="Zovo Recorder" />
         </div>
         <div className={styles.editorNavCenter}>
           <div className={styles.editorNavTitle}>

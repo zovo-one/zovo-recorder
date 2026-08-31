@@ -9,7 +9,7 @@ import { loginWithWebsite } from "../auth/loginWithWebsite";
 import { handleFinishMultiRecording } from "../messaging/handlers";
 
 const CLOUD_FEATURES_ENABLED =
-  process.env.SCREENITY_ENABLE_CLOUD_FEATURES === "true";
+  process.env.ZVR_RECORDER_ENABLE_CLOUD_FEATURES === "true";
 
 export const onMessageExternalListener = () => {
   if (!CLOUD_FEATURES_ENABLED) return;
@@ -23,8 +23,8 @@ export const onMessageExternalListener = () => {
         if (stayLoggedOut) return true;
 
         await chrome.storage.local.set({
-          screenityToken: message.token,
-          screenityUser: null,
+          zvrrecToken: message.token,
+          zvrrecUser: null,
           proSubscription: null,
           lastAuthCheck: 0,
           wasLoggedIn: true,
@@ -49,7 +49,7 @@ export const onMessageExternalListener = () => {
 
         if (!auth?.authenticated) {
           console.warn(
-            "[Screenity][Auth] AUTH_SUCCESS token did not verify, staying logged out",
+            "[ZovoRecorder][Auth] AUTH_SUCCESS token did not verify, staying logged out",
           );
           await chrome.storage.local.set({
             isLoggedIn: false,
@@ -61,7 +61,7 @@ export const onMessageExternalListener = () => {
           isLoggedIn: true,
           wasLoggedIn: false,
           stayLoggedOut: false,
-          screenityUser: auth.user,
+          zvrrecUser: auth.user,
           isSubscribed: auth.subscribed,
           proSubscription: auth.proSubscription,
           hasSubscribedBefore: auth.hasSubscribedBefore,
@@ -79,8 +79,8 @@ export const onMessageExternalListener = () => {
         return true;
       } else if (message.type === "SIGN_OUT") {
         await chrome.storage.local.remove([
-          "screenityToken",
-          "screenityUser",
+          "zvrrecToken",
+          "zvrrecUser",
           "lastAuthCheck",
           "isSubscribed",
           "isLoggedIn",
@@ -130,7 +130,7 @@ export const onMessageExternalListener = () => {
             }
 
             chrome.tabs.create({
-              url: `${process.env.SCREENITY_APP_BASE}/login?extension=true`,
+              url: `${process.env.ZVR_RECORDER_APP_BASE}/login?extension=true`,
               active: true,
             });
             return;

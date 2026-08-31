@@ -24,7 +24,7 @@ async function toGIF(ffmpeg, videoBlob, onProgress = () => {}) {
           quality,
           width,
           height,
-          workerScript: "/assets/vendor/gif.js/gif.worker.js",
+          workerScript: "/assets/vendor/gifjs/gif.worker.js",
         });
 
         const frameInterval = 1 / fps;

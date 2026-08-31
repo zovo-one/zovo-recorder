@@ -107,7 +107,7 @@ const startLock = (state) => {
     state.lockAbort = ac;
     navigator.locks
       .request(
-        "screenity-recorder-keepalive",
+        "zvrrec-recorder-keepalive",
         { mode: "exclusive", signal: ac.signal },
         () => new Promise(() => {}),
       )
@@ -120,8 +120,8 @@ const startMediaSession = (state) => {
     if (typeof navigator === "undefined" || !navigator.mediaSession) return;
     if (typeof window.MediaMetadata === "function") {
       navigator.mediaSession.metadata = new window.MediaMetadata({
-        title: "Screenity recording",
-        artist: "Screenity",
+        title: "ZovoRecorder recording",
+        artist: "ZovoRecorder",
       });
     }
     navigator.mediaSession.playbackState = "playing";

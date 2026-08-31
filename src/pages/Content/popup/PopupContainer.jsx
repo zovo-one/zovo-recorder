@@ -55,8 +55,8 @@ const PopupContainer = (props) => {
   const recordTabRef = useRef(null);
   const videoTabRef = useRef(null);
   const pillRef = useRef(null);
-  const [URL, setURL] = useState("https://help.screenity.io/");
-  const isCloudBuild = process.env.SCREENITY_ENABLE_CLOUD_FEATURES === "true";
+  const [URL, setURL] = useState("https://zovo.one/");
+  const isCloudBuild = process.env.ZVR_RECORDER_ENABLE_CLOUD_FEATURES === "true";
   const wasCameraActiveRef = useRef(null);
 
   useEffect(() => {
@@ -89,10 +89,10 @@ const PopupContainer = (props) => {
 
   useEffect(() => {
     const buildURL = async () => {
-      let baseURL = "https://help.screenity.io/";
+      let baseURL = "https://zovo.one/";
 
-      if (contentState?.isLoggedIn && contentState?.screenityUser) {
-        const { name, email } = contentState.screenityUser;
+      if (contentState?.isLoggedIn && contentState?.zvrrecUser) {
+        const { name, email } = contentState.zvrrecUser;
         const qs = await supportContextQuery({
           includeRecordingState: true,
           source: "popup",
@@ -116,7 +116,7 @@ const PopupContainer = (props) => {
     } else if (tab === "record" && !contentState.isLoggedIn) {
       setBadge(TempLogo);
     } else {
-      const avatar = contentState?.screenityUser?.avatar;
+      const avatar = contentState?.zvrrecUser?.avatar;
       setBadge(avatar || ProfilePic);
     }
 
@@ -137,7 +137,7 @@ const PopupContainer = (props) => {
     } else if (tab === "record" && !contentState.isLoggedIn) {
       setBadge(TempLogo);
     } else {
-      const avatar = contentState?.screenityUser?.avatar;
+      const avatar = contentState?.zvrrecUser?.avatar;
       setBadge(avatar || ProfilePic);
     }
   }, [
@@ -585,7 +585,7 @@ const PopupContainer = (props) => {
                     ...prev,
                     isLoggedIn: false,
                     isSubscribed: false,
-                    screenityUser: null,
+                    zvrrecUser: null,
                     proSubscription: null,
                     wasLoggedIn: false,
                     bigTab: "record",

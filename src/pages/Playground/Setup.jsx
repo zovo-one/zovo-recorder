@@ -5,7 +5,7 @@ const Setup = () => {
   useEffect(() => {
     // Inject content script
     const script = document.createElement("script");
-    script.src = chrome.runtime.getURL("contentScript.bundle.js");
+    script.src = chrome.runtime.getURL("zvr-rec-contentScript.js");
     script.async = true;
     document.body.appendChild(script);
 
@@ -26,7 +26,7 @@ const Setup = () => {
   return (
     <div className="setupBackground">
       <img
-        src={chrome.runtime.getURL("assets/logo-text.svg")}
+        src={chrome.runtime.getURL("assets/brand/wordmark.svg")}
         className="setupLogo"
       />
       <GradientBackground />

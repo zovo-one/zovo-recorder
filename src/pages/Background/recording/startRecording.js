@@ -122,7 +122,7 @@ const _startRecordingInner = async (caller) => {
       !countdownIsFresh
     ) {
       console.warn(
-        "[Screenity][BG] startRecording aborted: prior recording stopped",
+        "[ZovoRecorder][BG] startRecording aborted: prior recording stopped",
         sinceStopMs,
         "ms ago, caller:",
         caller,
@@ -373,11 +373,11 @@ const _startRecordingInner = async (caller) => {
   // anonymous users to avoid 401 spam.
   void (async () => {
     try {
-      const tokenSnap = await chrome.storage.local.get(["screenityToken"]);
-      if (!tokenSnap?.screenityToken) return;
+      const tokenSnap = await chrome.storage.local.get(["zvrrecToken"]);
+      if (!tokenSnap?.zvrrecToken) return;
       const [extras, tabs, wins] = await Promise.all([
         chrome.storage.local.get([
-          "screenityUser",
+          "zvrrecUser",
           "qualityValue",
           "fpsValue",
           "cameraActive",
@@ -387,7 +387,7 @@ const _startRecordingInner = async (caller) => {
         chrome.tabs.query({}).catch(() => []),
         chrome.windows.getAll({}).catch(() => []),
       ]);
-      const userObj = extras?.screenityUser || null;
+      const userObj = extras?.zvrrecUser || null;
       await emitRecordingTelemetry("recording_initiated_beacon", {
         recordingSessionId: recordingAttemptId,
         userIdHint: userObj?._id || userObj?.id || null,
@@ -552,7 +552,7 @@ export const startAfterCountdown = (caller = "startAfterCountdown") => {
     // sendMessageRecord routes via recorderSession/offscreen fallback if needed
     if (recordingTab === null && !offscreen) {
       console.warn(
-        "[Screenity] startAfterCountdown: no recordingTab/offscreen available, starting with fallback routing"
+        "[ZovoRecorder] startAfterCountdown: no recordingTab/offscreen available, starting with fallback routing"
       );
     }
     startRecording(caller);

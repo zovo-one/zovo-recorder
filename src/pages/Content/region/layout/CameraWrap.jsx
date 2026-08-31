@@ -15,6 +15,19 @@ const CameraWrap = (props) => {
   const [w, setW] = useState(200);
   const [h, setH] = useState(200);
 
+  useEffect(() => {
+    chrome.storage.local.get(["zvrrec.recorder.cameraPreset"], (result) => {
+      const preset = result?.["zvrrec.recorder.cameraPreset"];
+      if (!preset) return;
+      setContentState((previous) => ({
+        ...previous,
+        cameraShape: preset.shape || "circle",
+        cameraPositionPreset: preset.position || "custom",
+        cameraPresetTick: (previous.cameraPresetTick || 0) + 1,
+      }));
+    });
+  }, []);
+
   const updateUIPosition = () => {
     const ref =
       props.shadowRef.current.shadowRoot.querySelector(".camera-draggable");
@@ -71,6 +84,23 @@ const CameraWrap = (props) => {
     updateUIPosition();
   }, [cameraRef.current]);
 
+  useEffect(() => {
+    if (!cameraRef.current) return;
+    const position = contentState.cameraPositionPreset;
+    if (!position || position === "custom") return;
+    const size = Math.max(150, contentState.cameraDimensions.size || 200);
+    const gap = 24;
+    const next = {
+      x: position.endsWith("right") ? window.innerWidth - size - gap : gap,
+      y: position.startsWith("bottom") ? window.innerHeight - size - gap : gap,
+    };
+    cameraRef.current.updateSize({ width: size, height: size });
+    cameraRef.current.updatePosition(next);
+    const dims = { size, ...next };
+    setContentState((previous) => ({ ...previous, cameraDimensions: dims }));
+    chrome.storage.local.set({ cameraDimensions: dims });
+  }, [contentState.cameraPresetTick]);
+
   return (
     <div>
       <Rnd
@@ -116,12 +146,17 @@ const CameraWrap = (props) => {
           style={{
             width: "100%",
             height: "100%",
-            borderRadius: "50%",
+            borderRadius:
+              contentState.cameraShape === "square"
+                ? "4px"
+                : contentState.cameraShape === "rounded"
+                  ? "18%"
+                  : "50%",
             outline: "none",
             border: "none",
             pointerEvents: "none",
           }}
-          className={`screenity-iframe${
+          className={`zvrrec-iframe${
             contentState.cameraFlipped ? " camera-flipped" : ""
           }`}
           src={chrome.runtime.getURL("camera.html")}

@@ -4,7 +4,7 @@
 // the editor on the partial (no mid-recording backend swap).
 
 const WORKER_URL = () =>
-  chrome.runtime.getURL("recorderopfsworker.bundle.js");
+  chrome.runtime.getURL("zvr-rec-recorderopfsworker.js");
 
 // Write is short (chunks ~200KB; commit fast or hung). Close is long:
 // syncHandle.flush() on multi-GB recordings on slow disks can exceed

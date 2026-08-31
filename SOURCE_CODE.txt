@@ -1,0 +1,10 @@
+Zovo Recorder 1.0.0 — Complete Corresponding Source
+
+The complete source for this GPL-3.0 extension, including build instructions and
+the changes made to Screenity, is available at:
+
+https://github.com/theluckystrike/zovo-recorder
+
+Upstream project: https://github.com/alyssaxuu/screenity
+
+See LICENSE for your rights to use, study, modify, and redistribute this work.

@@ -3,7 +3,7 @@ let recordingDebugSession = null;
 
 const hasWindowDebugFlag = () => {
   if (typeof window === "undefined") return false;
-  return !!window.SCREENITY_DEBUG_RECORDER;
+  return !!window.ZVR_RECORDER_DEBUG_RECORDER;
 };
 
 const ensureSession = (sessionOverride) => {

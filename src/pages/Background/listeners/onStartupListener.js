@@ -2,12 +2,12 @@ import { tryResumePendingUploads } from "../recording/resumePendingUploads";
 import { loginWithWebsite } from "../auth/loginWithWebsite";
 
 const CLOUD_FEATURES_ENABLED =
-  process.env.SCREENITY_ENABLE_CLOUD_FEATURES === "true";
+  process.env.ZVR_RECORDER_ENABLE_CLOUD_FEATURES === "true";
 
 // For some reason without this the service worker doesn't always work
 export const onStartupListener = async () => {
   chrome.runtime.onStartup.addListener(() => {
-    if (globalThis.SCREENITY_VERBOSE_LOGS) {
+    if (globalThis.ZVR_RECORDER_VERBOSE_LOGS) {
       console.log("Service worker started up successfully.");
     }
     setTimeout(() => {
@@ -17,13 +17,13 @@ export const onStartupListener = async () => {
     // gated on signals so fresh installs don't hammer /auth/refresh.
     if (CLOUD_FEATURES_ENABLED) {
       chrome.storage.local
-        .get(["wasLoggedIn", "hasSubscribedBefore", "screenityUser", "screenityToken"])
+        .get(["wasLoggedIn", "hasSubscribedBefore", "zvrrecUser", "zvrrecToken"])
         .then((s) => {
           if (
             s.wasLoggedIn ||
             s.hasSubscribedBefore ||
-            s.screenityUser ||
-            s.screenityToken
+            s.zvrrecUser ||
+            s.zvrrecToken
           ) {
             loginWithWebsite({ force: true }).catch(() => {});
           }

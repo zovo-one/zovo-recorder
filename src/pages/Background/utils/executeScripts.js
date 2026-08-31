@@ -79,7 +79,7 @@ const injectionPriority = (tab, focusedWindowId) => {
 const hasContentScript = async (tabId) => {
   const { sendMessageTab } = await import("../tabManagement");
   try {
-    await sendMessageTab(tabId, { type: "screenity-ping" });
+    await sendMessageTab(tabId, { type: "zvrrec-ping" });
     return true;
   } catch (err) {
     return !String(err).includes("Receiving end does not exist");

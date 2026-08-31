@@ -67,18 +67,18 @@ import {
 
 localforage.config({
   driver: localforage.INDEXEDDB,
-  name: "screenity",
+  name: "zvrrec",
   version: 1,
 });
 
-const API_BASE = process.env.SCREENITY_API_BASE_URL;
+const API_BASE = process.env.ZVR_RECORDER_API_BASE_URL;
 // Enable the start-flow logs unconditionally for dev builds so the
 // startup timeline is visible in the cloudrecorder tab console without
-// needing to set `window.SCREENITY_DEBUG_RECORDER = true` first. Prod
+// needing to set `window.ZVR_RECORDER_DEBUG_RECORDER = true` first. Prod
 // builds keep the original flag.
 const DEBUG_START_FLOW =
   typeof window !== "undefined"
-    ? !!window.SCREENITY_DEBUG_RECORDER ||
+    ? !!window.ZVR_RECORDER_DEBUG_RECORDER ||
       process.env.NODE_ENV !== "production"
     : false;
 // Statuses a plain resume() recovers. Shared by the network-online handler and
@@ -528,7 +528,7 @@ const CloudRecorder = () => {
     const payload = { ts: Date.now(), event, ...data };
     // console.warn (not console.info); Terser drop_console removes
     // info/log/debug in prod builds.
-    console.warn("[Screenity][StartFlow]", payload);
+    console.warn("[ZovoRecorder][StartFlow]", payload);
     // Mirror to BG so the timeline is visible even if the cloud
     // recorder tab closes mid-sequence (e.g. an unhandled error
     // tearing the tab down before the user can read the console).
@@ -571,13 +571,13 @@ const CloudRecorder = () => {
         typeof countdownFinishedAt === "number" &&
         firstChunkAt < countdownFinishedAt
       ) {
-        console.error("[Screenity][StartFlow] Chunk before countdown end", {
+        console.error("[ZovoRecorder][StartFlow] Chunk before countdown end", {
           firstChunkAt,
           countdownFinishedAt,
         });
       }
     } catch (err) {
-      console.warn("[Screenity][StartFlow] Countdown assert failed", err);
+      console.warn("[ZovoRecorder][StartFlow] Countdown assert failed", err);
     }
   };
 
@@ -682,12 +682,12 @@ const CloudRecorder = () => {
       return uploadTelemetryTokenRef.current;
     }
     try {
-      const { screenityToken } = await chrome.storage.local.get([
-        "screenityToken",
+      const { zvrrecToken } = await chrome.storage.local.get([
+        "zvrrecToken",
       ]);
-      if (screenityToken) {
-        uploadTelemetryTokenRef.current = screenityToken;
-        return screenityToken;
+      if (zvrrecToken) {
+        uploadTelemetryTokenRef.current = zvrrecToken;
+        return zvrrecToken;
       }
     } catch {}
 
@@ -976,10 +976,10 @@ const CloudRecorder = () => {
       const token = await resolveUploadTelemetryToken();
       const headers = {
         "Content-Type": "application/json",
-        "x-screenity-source": "extension",
+        "x-zvrrec-source": "extension",
       };
       if (eventPayload.extensionVersion) {
-        headers["x-screenity-ext-version"] = String(
+        headers["x-zvrrec-ext-version"] = String(
           eventPayload.extensionVersion,
         );
       }
@@ -1342,12 +1342,12 @@ const CloudRecorder = () => {
 
   const linkMediaToScene = async (projectId, sceneId, mediaId) => {
     if (!projectId || !sceneId || !mediaId) return;
-    const { screenityToken } = await chrome.storage.local.get(["screenityToken"]);
+    const { zvrrecToken } = await chrome.storage.local.get(["zvrrecToken"]);
     await fetch(`${API_BASE}/media/${mediaId}/scene/`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        ...(screenityToken ? { Authorization: `Bearer ${screenityToken}` } : {}),
+        ...(zvrrecToken ? { Authorization: `Bearer ${zvrrecToken}` } : {}),
       },
       body: JSON.stringify({ projectId, sceneId }),
     });
@@ -1356,12 +1356,12 @@ const CloudRecorder = () => {
   const confirmLinkedMedia = async (projectId, sceneId, mediaIds = []) => {
     const filtered = mediaIds.filter(Boolean);
     if (!projectId || !sceneId || filtered.length === 0) return;
-    const { screenityToken } = await chrome.storage.local.get(["screenityToken"]);
+    const { zvrrecToken } = await chrome.storage.local.get(["zvrrecToken"]);
     await fetch(`${API_BASE}/media/confirm-linked/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        ...(screenityToken ? { Authorization: `Bearer ${screenityToken}` } : {}),
+        ...(zvrrecToken ? { Authorization: `Bearer ${zvrrecToken}` } : {}),
       },
       body: JSON.stringify({ mediaIds: filtered, projectId, sceneId }),
     });
@@ -1389,12 +1389,12 @@ const CloudRecorder = () => {
     const mediaIds = [screenMediaId, cameraMediaId, audioMediaId].filter(
       Boolean,
     );
-    const { screenityToken } = await chrome.storage.local.get(["screenityToken"]);
+    const { zvrrecToken } = await chrome.storage.local.get(["zvrrecToken"]);
     const res = await fetch(`${API_BASE}/videos/${projectId}/recover-scene/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        ...(screenityToken ? { Authorization: `Bearer ${screenityToken}` } : {}),
+        ...(zvrrecToken ? { Authorization: `Bearer ${zvrrecToken}` } : {}),
       },
       body: JSON.stringify({
         sceneId,
@@ -1467,7 +1467,7 @@ const CloudRecorder = () => {
           );
         });
 
-      if (globalThis.SCREENITY_VERBOSE_LOGS) {
+      if (globalThis.ZVR_RECORDER_VERBOSE_LOGS) {
         if (DEBUG_START_FLOW) {
           console.log("[CloudRecorder] Tab keep-alive stopped");
         }
@@ -2361,7 +2361,7 @@ const CloudRecorder = () => {
         chrome.storage.local.remove(["recorderSession", sessionStateKey]);
         sendRecordingError(
           result?.error ||
-            "Another Screenity recorder is already running. Please close it and try again.",
+            "Another ZovoRecorder recorder is already running. Please close it and try again.",
         );
         return false;
       }
@@ -2902,7 +2902,7 @@ const CloudRecorder = () => {
     try {
       const params = new URLSearchParams(window.location.search);
       if (params.get("simulateFinalizeFailure") === "1") return true;
-      return window.SCREENITY_SIMULATE_FINALIZE_FAILURE === true;
+      return window.ZVR_RECORDER_SIMULATE_FINALIZE_FAILURE === true;
     } catch {
       return false;
     }
@@ -2955,7 +2955,7 @@ const CloudRecorder = () => {
       try {
         await chrome.downloads.download({
           url: objectUrl,
-          filename: `Screenity-Finalize-Diagnostics-${new Date().toISOString()}.json`,
+          filename: `ZovoRecorder-Finalize-Diagnostics-${new Date().toISOString()}.json`,
           saveAs: false,
         });
       } finally {
@@ -3034,7 +3034,7 @@ const CloudRecorder = () => {
       try {
         await chrome.downloads.download({
           url: objectUrl,
-          filename: `Screenity-${
+          filename: `ZovoRecorder-${
             partial ? "Partial" : "Recovery"
           }-${new Date().toISOString()}-${reason}.webm`,
           saveAs: false,
@@ -3217,7 +3217,7 @@ const CloudRecorder = () => {
             try {
               await chrome.downloads.download({
                 url: objectUrl,
-                filename: `Screenity-Recovered-${ts}.webm`,
+                filename: `ZovoRecorder-Recovered-${ts}.webm`,
                 saveAs: false,
               });
             } finally {
@@ -3246,7 +3246,7 @@ const CloudRecorder = () => {
             try {
               await chrome.downloads.download({
                 url: cameraObjectUrl,
-                filename: `Screenity-Recovered-Camera-${ts}.webm`,
+                filename: `ZovoRecorder-Recovered-Camera-${ts}.webm`,
                 saveAs: false,
               });
             } finally {
@@ -3624,12 +3624,12 @@ const CloudRecorder = () => {
       });
     }
 
-    const { screenityToken } = await chrome.storage.local.get(["screenityToken"]);
+    const { zvrrecToken } = await chrome.storage.local.get(["zvrrecToken"]);
     await fetch(`${API_BASE}/videos/${projectId}/delete/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        ...(screenityToken ? { Authorization: `Bearer ${screenityToken}` } : {}),
+        ...(zvrrecToken ? { Authorization: `Bearer ${zvrrecToken}` } : {}),
       },
       body: JSON.stringify({
         mediaToDelete,
@@ -3660,7 +3660,7 @@ const CloudRecorder = () => {
     emptyCleanupRef.current = true;
 
     console.warn(
-      `[Screenity] empty upload cleanup reason=${reason} screenOffset=${screenOffset} cameraOffset=${cameraOffset}`,
+      `[ZovoRecorder] empty upload cleanup reason=${reason} screenOffset=${screenOffset} cameraOffset=${cameraOffset}`,
     );
 
     await Promise.allSettled([
@@ -3694,7 +3694,7 @@ const CloudRecorder = () => {
 
   const sendRecordingError = (why, cancel = false) => {
     console.error(
-      `[Screenity][CloudRecorder] sendRecordingError why=${typeof why === "string" ? why : JSON.stringify(why)} cancel=${cancel}`,
+      `[ZovoRecorder][CloudRecorder] sendRecordingError why=${typeof why === "string" ? why : JSON.stringify(why)} cancel=${cancel}`,
     );
     void cleanupIfEmptyUploads("error");
     sendRecordingErrorBase(why, cancel);
@@ -5364,7 +5364,7 @@ const CloudRecorder = () => {
         // A secondary track failed with capture already live. Tearing the
         // session down here is what orphaned recordings with no Stop button.
         console.error(
-          "[Screenity][CloudRecorder] track setup failed after recording went live",
+          "[ZovoRecorder][CloudRecorder] track setup failed after recording went live",
           err,
         );
         logStartFlow("track_setup_failed_after_live", {
@@ -5539,15 +5539,15 @@ const CloudRecorder = () => {
         const dedupe = await chrome.storage.local.get([dedupeKey]);
         if (dedupe?.[dedupeKey]) return;
 
-        const { screenityToken } = await chrome.storage.local.get([
-          "screenityToken",
+        const { zvrrecToken } = await chrome.storage.local.get([
+          "zvrrecToken",
         ]);
         await fetch(`${API_BASE}/transcription/queue`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            ...(screenityToken
-              ? { Authorization: `Bearer ${screenityToken}` }
+            ...(zvrrecToken
+              ? { Authorization: `Bearer ${zvrrecToken}` }
               : {}),
           },
           credentials: "include",
@@ -5903,7 +5903,7 @@ const CloudRecorder = () => {
 
     const shouldNotifyEditor = !multiMode || recordingToScene;
     if (!shouldNotifyEditor || !projectId || !sceneId) {
-      console.warn("[Screenity][CloudRecorder] Skipping editor-ready", {
+      console.warn("[ZovoRecorder][CloudRecorder] Skipping editor-ready", {
         shouldNotifyEditor,
         hasProjectId: Boolean(projectId),
         hasSceneId: Boolean(sceneId),
@@ -5913,7 +5913,7 @@ const CloudRecorder = () => {
       return;
     }
 
-    console.info("[Screenity][CloudRecorder] Sending editor-ready", {
+    console.info("[ZovoRecorder][CloudRecorder] Sending editor-ready", {
       projectId,
       sceneId,
       recordingToScene: Boolean(recordingToScene),
@@ -5925,7 +5925,7 @@ const CloudRecorder = () => {
     chrome.runtime.sendMessage({
       type: "editor-ready",
       publicUrl: !recordingToScene
-        ? `${process.env.SCREENITY_APP_BASE}/view/${projectId}/`
+        ? `${process.env.ZVR_RECORDER_APP_BASE}/view/${projectId}/`
         : undefined,
       newProject: !recordingToScene && !multiMode,
       multiMode: Boolean(multiMode),
@@ -5935,8 +5935,8 @@ const CloudRecorder = () => {
       editorUrl:
         !recordingToScene && !multiMode
           ? instantMode.current
-            ? `${process.env.SCREENITY_APP_BASE}/view/${projectId}?load=true`
-            : `${process.env.SCREENITY_APP_BASE}/editor/${projectId}/edit?load=true`
+            ? `${process.env.ZVR_RECORDER_APP_BASE}/view/${projectId}?load=true`
+            : `${process.env.ZVR_RECORDER_APP_BASE}/editor/${projectId}/edit?load=true`
           : undefined,
       localPlayback: localPlaybackAvailable
         ? {
@@ -6312,7 +6312,7 @@ const CloudRecorder = () => {
     stopTick("stop-pressed", { reason, shouldFinalize });
 
     if (DEBUG_START_FLOW) {
-      console.debug("[Screenity] stopRecording invoked", {
+      console.debug("[ZovoRecorder] stopRecording invoked", {
         reason,
         shouldFinalize,
         screenState: screenRecorder.current?.state,
@@ -6369,9 +6369,9 @@ const CloudRecorder = () => {
           type: "prepare-open-editor",
           projectId,
           url: instantMode.current
-            ? `${process.env.SCREENITY_APP_BASE}/view/${projectId}?load=true`
-            : `${process.env.SCREENITY_APP_BASE}/editor/${projectId}/edit?load=true`,
-          publicUrl: `${process.env.SCREENITY_APP_BASE}/view/${projectId}/`,
+            ? `${process.env.ZVR_RECORDER_APP_BASE}/view/${projectId}?load=true`
+            : `${process.env.ZVR_RECORDER_APP_BASE}/editor/${projectId}/edit?load=true`,
+          publicUrl: `${process.env.ZVR_RECORDER_APP_BASE}/view/${projectId}/`,
           instantMode: instantMode.current,
         });
       }
@@ -7171,7 +7171,7 @@ const CloudRecorder = () => {
             );
             screenStream.current = prewarmedStream;
             if (typeof window !== "undefined") {
-              window.__screenityPrewarmedTabStream = null;
+              window.__zvrrecPrewarmedTabStream = null;
             }
           } else if (useDisplayMedia) {
             // Alias to avoid TDZ with the later `const {width, height}` destructuring.
@@ -7893,7 +7893,7 @@ const CloudRecorder = () => {
     // sender.tab, so the handler's tabs.update can't do anything. It only
     // cost a SW round-trip on every cloud start. Tab hosts still need it.
     if (!IS_OFFSCREEN_HOST && document.visibilityState === "hidden") {
-      if (globalThis.SCREENITY_VERBOSE_LOGS) {
+      if (globalThis.ZVR_RECORDER_VERBOSE_LOGS) {
         console.warn("[CloudRecorder] Tab is hidden at recording start, requesting activation");
       }
       try {
@@ -8075,7 +8075,7 @@ const CloudRecorder = () => {
 
     const sendReady = () => {
       window.parent.postMessage(
-        { type: "screenity-region-capture-loaded" },
+        { type: "zvrrec-region-capture-loaded" },
         "*",
       );
     };

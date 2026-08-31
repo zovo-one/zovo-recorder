@@ -6,7 +6,7 @@ import { openExistingChunksStore } from "../CloudRecorder/recorderStorage/choose
 
 localforage.config({
   driver: localforage.INDEXEDDB,
-  name: "screenity",
+  name: "zvrrec",
   version: 1,
 });
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // gate before publishing the self-hosted zip: scan build/ for API URLs,
 // OAuth client IDs, sentry DSNs, raw .env values. build:release with
-// SCREENITY_SKIP_ENV should already strip these; this is the catch-all.
+// ZVR_RECORDER_SKIP_ENV should already strip these; this is the catch-all.
 // usage: node scripts/verify-no-secrets.mjs [build-dir]  (default: build/)
 
 import { readFileSync, readdirSync, statSync } from "node:fs";
@@ -23,6 +23,19 @@ const FORBIDDEN_PATTERNS = [
   /['"]Bearer\s+[A-Za-z0-9_.\-]{20,}['"]/,
   /\bAIza[A-Za-z0-9_-]{35}\b/,
 ];
+
+const isPublicSupabaseAnonToken = (value) => {
+  if (!value.startsWith("eyJ")) return false;
+  try {
+    const payload = value.split(".")[1]
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+    const decoded = JSON.parse(Buffer.from(payload, "base64").toString("utf8"));
+    return decoded?.role === "anon";
+  } catch {
+    return false;
+  }
+};
 
 const SKIP_EXTENSIONS = new Set([
   ".png",
@@ -73,6 +86,9 @@ for (const file of walk(BUILD_DIR)) {
   for (const pattern of FORBIDDEN_PATTERNS) {
     const match = contents.match(pattern);
     if (match) {
+      if (pattern.source.startsWith("\\beyJ") && isPublicSupabaseAnonToken(match[0])) {
+        continue;
+      }
       const rel = file.slice(BUILD_DIR.length + 1);
       findings.push({ file: rel, pattern: pattern.source, match: match[0] });
       hits += 1;

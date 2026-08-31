@@ -23,7 +23,7 @@ const TEMP_FILE_PREFIX = "remux-";
 const STALE_AGE_MS = 5 * 60 * 1000;
 
 const devLog =
-  process.env.SCREENITY_DEV_MODE === "true"
+  process.env.ZVR_RECORDER_DEV_MODE === "true"
     ? (label, data) => console.log("[remux][worker]", label, data || "")
     : () => {};
 

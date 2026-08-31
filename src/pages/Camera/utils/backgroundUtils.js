@@ -109,7 +109,7 @@ export const loadSegmentationModel = async () => {
       return gpu;
     } catch (gpuErr) {
       console.warn(
-        "[Screenity] GPU segmenter failed, falling back to CPU:",
+        "[ZovoRecorder] GPU segmenter failed, falling back to CPU:",
         gpuErr,
       );
       try {

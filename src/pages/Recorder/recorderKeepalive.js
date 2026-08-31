@@ -1,12 +1,12 @@
 // Keep-alive bootstrap. Loads pre-bundle to dodge Chrome's background-tab
-// throttle on region recordings. Handles hang off window.__SCREENITY_KEEPALIVE.
+// throttle on region recordings. Handles hang off window.__ZVR_RECORDER_KEEPALIVE.
 (function () {
   try {
-    var KA = (window.__SCREENITY_KEEPALIVE =
-      window.__SCREENITY_KEEPALIVE || {});
+    var KA = (window.__ZVR_RECORDER_KEEPALIVE =
+      window.__ZVR_RECORDER_KEEPALIVE || {});
     KA.startedAt = Date.now();
     try {
-      performance.mark("screenity-keepalive-start");
+      performance.mark("zvrrec-keepalive-start");
     } catch (e) {}
 
     // Silent ultrasonic sine; counts as "playing audio" to Chrome.
@@ -40,7 +40,7 @@
         KA.lockAbort = ac;
         navigator.locks
           .request(
-            "screenity-recorder-keepalive",
+            "zvrrec-recorder-keepalive",
             { mode: "exclusive", signal: ac.signal },
             function () {
               return new Promise(function () {});
@@ -117,8 +117,8 @@
       if (navigator.mediaSession && !KA.mediaSession) {
         if (typeof window.MediaMetadata === "function") {
           navigator.mediaSession.metadata = new window.MediaMetadata({
-            title: "Screenity recording",
-            artist: "Screenity",
+            title: "ZovoRecorder recording",
+            artist: "ZovoRecorder",
           });
         }
         navigator.mediaSession.playbackState = "playing";
@@ -131,7 +131,7 @@
 
     KA.completedAt = Date.now();
     try {
-      performance.mark("screenity-keepalive-end");
+      performance.mark("zvrrec-keepalive-end");
     } catch (e) {}
   } catch (e) {}
 })();

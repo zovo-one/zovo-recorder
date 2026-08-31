@@ -3,14 +3,20 @@
   "name": "__MSG_extName__",
   "description": "__MSG_extDesc__",
   "default_locale": "en",
-  "version": "4.6.6",
+  "version": "1.0.0",
   "background": {
-    "service_worker": "background.bundle.js"
+    "service_worker": "zvr-rec-background.js"
   },
   "action": {
     "default_icon": "assets/img/icon-34.png"
   },
+  "options_ui": {
+    "page": "setup.html",
+    "open_in_tab": true
+  },
   "icons": {
+    "16": "assets/img/icon-16.png",
+    "48": "assets/img/icon-48.png",
     "128": "assets/img/icon-128.png"
   },
   "host_permissions": [
@@ -22,7 +28,7 @@
         "<all_urls>"
       ],
       "js": [
-        "contentScript.bundle.js"
+        "zvr-rec-contentScript.js"
       ],
       "css": [
         "assets/fonts/fonts.css"
@@ -32,17 +38,14 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "content.styles.css",
         "blank.mp4",
         "assets/*",
         "setup.html",
-        "worker.js",
         "vendor/*",
         "cloudrecorder.html",
         "localplaybackbridge.html",
         "recorder.html",
         "offscreenrecorder.html",
-        "wrapper.html",
         "camera.html",
         "permissions.html",
         "region.html",
@@ -57,12 +60,6 @@
       ]
     }
   ],
-  "oauth2": {
-    "client_id": "560517327251-m7n1k3kddknu7s9s4ejvrs1bj91gutd7.apps.googleusercontent.com",
-    "scopes": [
-      "https://www.googleapis.com/auth/drive.file"
-    ]
-  },
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; media-src 'self' data: blob: *; img-src 'self' https: data: blob:"
   },
@@ -102,7 +99,6 @@
     }
   },
   "permissions": [
-    "identity",
     "activeTab",
     "storage",
     "unlimitedStorage",
@@ -115,12 +111,6 @@
   ],
   "storage": {
     "managed_schema": "schema.json"
-  },
-  "externally_connectable": {
-    "matches": [
-      "https://app.screenity.io/*",
-      "http://localhost:3000/*"
-    ]
   },
   "optional_permissions": [
     "offscreen",

@@ -64,7 +64,7 @@ const TooltipWrap = (props) => {
             </Tooltip.Trigger>
             <Tooltip.Portal
               container={
-                document.getElementsByClassName("screenity-shadow-dom")[0]
+                document.getElementsByClassName("zvrrec-shadow-dom")[0]
               }
             >
               <Tooltip.Content

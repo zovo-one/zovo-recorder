@@ -11,7 +11,7 @@ import {
 
 localforage.config({
   driver: localforage.INDEXEDDB,
-  name: "screenity",
+  name: "zvrrec",
   version: 1,
 });
 
@@ -52,7 +52,7 @@ const Download = () => {
     out = out.replace(/[\x00-\x1f\x7f]/g, "_");
     out = out.replace(/\s+/g, " ").trim();
     out = out.replace(/[. ]+$/g, "");
-    if (!out) out = "Screenity recording";
+    if (!out) out = "ZovoRecorder recording";
     if (out.length > 200) out = out.slice(0, 200).trim();
     return out;
   };
@@ -146,7 +146,7 @@ const Download = () => {
             urlsToRevoke.push(url);
             await chrome.downloads.download({
               url,
-              filename: `Screenity-Recovery-${label}-${ts}.${ext}`,
+              filename: `ZovoRecorder-Recovery-${label}-${ts}.${ext}`,
               saveAs: false,
             });
             downloaded++;
@@ -275,7 +275,7 @@ const Download = () => {
               }
             } catch (err) {
               console.warn(
-                "[Screenity][Download] OPFS read failed, falling back to IDB",
+                "[ZovoRecorder][Download] OPFS read failed, falling back to IDB",
                 err,
               );
             }
@@ -300,15 +300,15 @@ const Download = () => {
             }
           }
         } catch (err) {
-          console.error("[Screenity][Download] recovery failed", err);
+          console.error("[ZovoRecorder][Download] recovery failed", err);
         }
         if (!blob || blob.size === 0) {
-          console.warn("[Screenity][Download] no bytes available to download");
+          console.warn("[ZovoRecorder][Download] no bytes available to download");
           window.close();
           return;
         }
         const url = URL.createObjectURL(blob);
-        const filename = `screenity-recording-${Date.now()}.${container.ext}`;
+        const filename = `zvrrec-recording-${Date.now()}.${container.ext}`;
         try {
           await chrome.downloads.download({
             url,

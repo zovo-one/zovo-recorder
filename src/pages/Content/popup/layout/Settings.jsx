@@ -5,6 +5,7 @@ import { DropdownIcon } from "../../images/popup/images";
 // Components
 import Switch from "../components/Switch";
 import TimeSetter from "../components/TimeSetter";
+import LicensePanel from "../components/LicensePanel";
 
 // Context
 import { contentStateContext } from "../../context/ContentState";
@@ -48,6 +49,7 @@ const Settings = () => {
         </div>
       </Collapsible.Trigger>
       <Collapsible.Content>
+        <LicensePanel />
         <Switch
           label={chrome.i18n.getMessage("hideToolbarLabel")}
           name="hideUI"

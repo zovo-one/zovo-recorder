@@ -11,7 +11,7 @@ import { clearInMemoryEditorLock } from "../recording/stopRecording";
 import { sendMessageEnsuringContentScript } from "../utils/executeScripts";
 
 const CLOUD_FEATURES_ENABLED =
-  process.env.SCREENITY_ENABLE_CLOUD_FEATURES === "true";
+  process.env.ZVR_RECORDER_ENABLE_CLOUD_FEATURES === "true";
 
 const handleTabMessaging = async (tab) => {
   const { activeTab, recordingUiTabId, offscreen } =
@@ -27,7 +27,7 @@ const handleTabMessaging = async (tab) => {
       return;
     } catch (err) {
       console.error(
-        "[Screenity][ActionClick] offscreen stop-recording send failed:",
+        "[ZovoRecorder][ActionClick] offscreen stop-recording send failed:",
         err,
       );
       return;
@@ -48,18 +48,18 @@ const handleTabMessaging = async (tab) => {
       chrome.storage.local.set({ activeTab: tab.id });
     }
   } catch (error) {
-    console.error("[Screenity][ActionClick] handleTabMessaging failed, trying direct recorder stop:", error);
+    console.error("[ZovoRecorder][ActionClick] handleTabMessaging failed, trying direct recorder stop:", error);
     try {
       await sendMessageRecord({ type: "stop-recording-tab" });
     } catch (recorderErr) {
-      console.error("[Screenity][ActionClick] direct recorder stop also failed:", recorderErr);
+      console.error("[ZovoRecorder][ActionClick] direct recorder stop also failed:", recorderErr);
     }
   }
 };
 
 const openPlaygroundOrPopup = async (tab) => {
   const editorUrlPattern =
-    /https:\/\/app\.screenity\.io\/editor\/([^\/]+)(\/edit)?\/?/;
+    /https:\/\/app\.zvrrec\.io\/editor\/([^\/]+)(\/edit)?\/?/;
 
   if (tab.url && editorUrlPattern.test(tab.url)) {
     const match = tab.url.match(editorUrlPattern);
@@ -126,8 +126,8 @@ const openPlaygroundOrPopup = async (tab) => {
   // never gate on navigator.onLine; that caused duplicate playground tabs
   if (!isForbidden || isPlaygroundOrSetup) {
     sendMessageEnsuringContentScript(tab.id, { type: "toggle-popup" })
-      .then(() => console.log("[Screenity][ActionClick] toggle-popup delivered to tab", tab.id))
-      .catch((err) => console.error("[Screenity][ActionClick] toggle-popup FAILED to tab", tab.id, String(err).slice(0, 120)));
+      .then(() => console.log("[ZovoRecorder][ActionClick] toggle-popup delivered to tab", tab.id))
+      .catch((err) => console.error("[ZovoRecorder][ActionClick] toggle-popup FAILED to tab", tab.id, String(err).slice(0, 120)));
     chrome.storage.local.set({ activeTab: tab.id });
   } else {
     const newTab = await chrome.tabs.create({
@@ -177,7 +177,7 @@ export const onActionButtonClickedListener = () => {
         "postStopEditorOpening", "postStopEditorOpened",
         "editorRecoveryUrl",
       ]);
-      console.log("[Screenity][ActionClick] storage:", snap, "tab:", tab.id);
+      console.log("[ZovoRecorder][ActionClick] storage:", snap, "tab:", tab.id);
 
       if (snap.editorRecoveryUrl) {
         await chrome.storage.local.remove(["editorRecoveryUrl", "editorRecoveryAt"]);
@@ -211,7 +211,7 @@ export const onActionButtonClickedListener = () => {
             hasActiveRecorder = true;
           } else {
             console.warn(
-              "[Screenity][ActionClick] recorderSession stale (owner tab",
+              "[ZovoRecorder][ActionClick] recorderSession stale (owner tab",
               sessionOwnerTabId,
               "is dead) — clearing",
             );
@@ -227,7 +227,7 @@ export const onActionButtonClickedListener = () => {
           if (await doesTabExist(recordingTab)) {
             hasActiveRecorder = true;
           } else {
-            console.warn("[Screenity][ActionClick] recordingTab", recordingTab, "is dead — clearing");
+            console.warn("[ZovoRecorder][ActionClick] recordingTab", recordingTab, "is dead — clearing");
             chrome.storage.local.set({ recordingTab: null });
           }
         }
@@ -236,14 +236,14 @@ export const onActionButtonClickedListener = () => {
           if (await isOffscreenAlive()) {
             hasActiveRecorder = true;
           } else {
-            console.warn("[Screenity][ActionClick] offscreen flag stale (no document) — clearing");
+            console.warn("[ZovoRecorder][ActionClick] offscreen flag stale (no document) — clearing");
             chrome.storage.local.set({ offscreen: false });
           }
         }
 
         if (!hasActiveRecorder) {
           console.warn(
-            "[Screenity][ActionClick] branch: stale-reset-then-popup.",
+            "[ZovoRecorder][ActionClick] branch: stale-reset-then-popup.",
             { recording, pendingRecording, restarting, sessionRecording, recordingTab, offscreen },
           );
           clearInMemoryEditorLock();
@@ -264,11 +264,11 @@ export const onActionButtonClickedListener = () => {
             .catch(() => {});
           await openPlaygroundOrPopup(tab);
         } else {
-          console.log("[Screenity][ActionClick] branch: handle-tab-messaging (active recorder)");
+          console.log("[ZovoRecorder][ActionClick] branch: handle-tab-messaging (active recorder)");
           await handleTabMessaging(tab);
         }
       } else {
-        console.log("[Screenity][ActionClick] branch: normal-popup");
+        console.log("[ZovoRecorder][ActionClick] branch: normal-popup");
         await chrome.storage.local.set({
           recordingToScene: false,
           projectId: null,

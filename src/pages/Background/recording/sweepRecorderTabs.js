@@ -29,7 +29,7 @@ export const sweepRecorderTabs = async ({ exceptTabId = null } = {}) => {
       } catch {}
     }
   } catch (err) {
-    console.warn("[Screenity] sweepRecorderTabs failed", err);
+    console.warn("[ZovoRecorder] sweepRecorderTabs failed", err);
   }
   if (removed.length) {
     diagEvent("recorder-tabs-swept", { removed, exceptTabId });

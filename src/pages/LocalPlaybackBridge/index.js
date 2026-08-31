@@ -11,16 +11,16 @@ import {
 
 const APP_ORIGIN = (() => {
   try {
-    const base = process.env.SCREENITY_APP_BASE;
+    const base = process.env.ZVR_RECORDER_APP_BASE;
     return base ? new URL(base).origin : null;
   } catch {
     return null;
   }
 })();
 
-const READY = "screenity-local-playback-bridge-ready";
-const REQUEST = "screenity-local-playback-bridge-request";
-const RESULT = "screenity-local-playback-bridge-result";
+const READY = "zvrrec-local-playback-bridge-ready";
+const REQUEST = "zvrrec-local-playback-bridge-request";
+const RESULT = "zvrrec-local-playback-bridge-result";
 
 const post = (payload) => {
   if (!APP_ORIGIN || window.parent === window) return;

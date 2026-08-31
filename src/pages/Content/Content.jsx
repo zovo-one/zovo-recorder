@@ -6,12 +6,12 @@ import ContentState from "./context/ContentState";
 
 const Content = () => {
   return (
-    <div className="screenity-shadow-dom">
+    <div className="zvrrec-shadow-dom">
       <ContentState>
         <Wrapper />
       </ContentState>
       <style type="text/css">{`
-			#screenity-ui, #screenity-ui div {
+			#zvrrec-ui, #zvrrec-ui div {
 				background-color: unset;
 				padding: unset;
 				width: unset;
@@ -20,21 +20,21 @@ const Content = () => {
 				margin: unset;
 				border-radius: unset;
 			}
-			.screenity-outline {
+			.zvrrec-outline {
 				position: absolute;
 				z-index: 99999999999;
-				border: 2px solid #3080F8;
+				border: 2px solid #635BFF;
 				outline-offset: -2px;
 				pointer-events: none;
 				border-radius: 5px!important;
 			}
-		.screenity-blur {
+		.zvrrec-blur {
 			filter: blur(10px)!important;
 		}
-			.screenity-shadow-dom * {
+			.zvrrec-shadow-dom * {
 				transition: unset;
 			}
-			.screenity-shadow-dom .TooltipContent {
+			.zvrrec-shadow-dom .TooltipContent {
   border-radius: 30px!important;
 	background-color: #29292F!important;
   padding: 10px 15px!important;
@@ -54,65 +54,65 @@ const Content = () => {
   will-change: transform, opacity;
 }
 
-.screenity-shadow-dom .hide-tooltip {
+.zvrrec-shadow-dom .hide-tooltip {
 	display: none!important;
 }
 
-.screenity-shadow-dom .tooltip-tall {
+.zvrrec-shadow-dom .tooltip-tall {
 	margin-bottom: 20px;
 }
 
-.screenity-shadow-dom .tooltip-small {
+.zvrrec-shadow-dom .tooltip-small {
 	margin-bottom: 5px;
 }
 
-.screenity-shadow-dom .TooltipContent[data-state='delayed-open'][data-side='top'] {
-	animation-name: screenity-slideDownAndFade;
+.zvrrec-shadow-dom .TooltipContent[data-state='delayed-open'][data-side='top'] {
+	animation-name: zvrrec-slideDownAndFade;
 }
-.screenity-shadow-dom .TooltipContent[data-state='delayed-open'][data-side='right'] {
-  animation-name: screenity-slideLeftAndFade;
+.zvrrec-shadow-dom .TooltipContent[data-state='delayed-open'][data-side='right'] {
+  animation-name: zvrrec-slideLeftAndFade;
 }
-.screenity-shadow-dom.TooltipContent[data-state='delayed-open'][data-side='bottom'] {
-  animation-name: screenity-slideUpAndFade;
+.zvrrec-shadow-dom.TooltipContent[data-state='delayed-open'][data-side='bottom'] {
+  animation-name: zvrrec-slideUpAndFade;
 }
-.screenity-shadow-dom.TooltipContent[data-state='delayed-open'][data-side='left'] {
-  animation-name: screenity-slideRightAndFade;
+.zvrrec-shadow-dom.TooltipContent[data-state='delayed-open'][data-side='left'] {
+  animation-name: zvrrec-slideRightAndFade;
 }
 
-@keyframes screenity-slideUpAndFade {
+@keyframes zvrrec-slideUpAndFade {
   from { opacity: 0; transform: translateY(2px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-@keyframes screenity-slideRightAndFade {
+@keyframes zvrrec-slideRightAndFade {
   from { opacity: 0; transform: translateX(-2px); }
   to   { opacity: 1; transform: translateX(0); }
 }
-@keyframes screenity-slideDownAndFade {
+@keyframes zvrrec-slideDownAndFade {
   from { opacity: 0; transform: translateY(-2px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-@keyframes screenity-slideLeftAndFade {
+@keyframes zvrrec-slideLeftAndFade {
   from { opacity: 0; transform: translateX(2px); }
   to   { opacity: 1; transform: translateX(0); }
 }
 
-#screenity-ui [data-radix-popper-content-wrapper] { z-index: 999999999999!important; }
+#zvrrec-ui [data-radix-popper-content-wrapper] { z-index: 999999999999!important; }
 
-.screenity-shadow-dom .CanvasContainer {
+.zvrrec-shadow-dom .CanvasContainer {
 	position: fixed;
 	pointer-events: all!important;
 	top: 0px!important;
 	left: 0px!important;
 	z-index: 99999999999!important;
 }
-.screenity-shadow-dom .canvas {
+.zvrrec-shadow-dom .canvas {
 	position: fixed;
 	top: 0px!important;
 	left: 0px!important;
 	z-index: 99999999999!important;
 	background: transparent!important;
 }
-.screenity-shadow-dom .canvas-container {
+.zvrrec-shadow-dom .canvas-container {
 	top: 0px!important;
 	left: 0px!important;
 	z-index: 99999999999;
@@ -120,7 +120,7 @@ const Content = () => {
 	background: transparent!important;
 }
 
-.ScreenityDropdownMenuContent {
+.ZovoRecorderDropdownMenuContent {
 	z-index: 99999999999!important;
   min-width: 200px;
   background-color: white;
@@ -137,31 +137,31 @@ const Content = () => {
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity;
 }
-.ScreenityDropdownMenuContent[data-side="top"] {
-  animation-name: screenity-slideDownAndFade;
+.ZovoRecorderDropdownMenuContent[data-side="top"] {
+  animation-name: zvrrec-slideDownAndFade;
 }
-.ScreenityDropdownMenuContent[data-side="right"] {
-  animation-name: screenity-slideLeftAndFade;
+.ZovoRecorderDropdownMenuContent[data-side="right"] {
+  animation-name: zvrrec-slideLeftAndFade;
 }
-.ScreenityDropdownMenuContent[data-side="bottom"] {
-  animation-name: screenity-slideUpAndFade;
+.ZovoRecorderDropdownMenuContent[data-side="bottom"] {
+  animation-name: zvrrec-slideUpAndFade;
 }
-.ScreenityDropdownMenuContent[data-side="left"] {
-  animation-name: screenity-slideRightAndFade;
+.ZovoRecorderDropdownMenuContent[data-side="left"] {
+  animation-name: zvrrec-slideRightAndFade;
 }
-.ScreenityItemIndicator {
+.ZovoRecorderItemIndicator {
   position: absolute;
   right: 12px;
   width: 18px;
   height: 18px;
-  background: #3080F8;
+  background: #635BFF;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
-.ScreenityDropdownMenuItem,
-.ScreenityDropdownMenuRadioItem {
+.ZovoRecorderDropdownMenuItem,
+.ZovoRecorderDropdownMenuRadioItem {
   font-size: 14px;
   line-height: 1;
   display: flex;
@@ -174,11 +174,11 @@ const Content = () => {
   user-select: none;
   outline: none;
 }
-.ScreenityDropdownMenuItem:hover {
+.ZovoRecorderDropdownMenuItem:hover {
     background-color: #F6F7FB !important;
     cursor: pointer;
 }
-.ScreenityDropdownMenuItem[data-disabled] {
+.ZovoRecorderDropdownMenuItem[data-disabled] {
   color: #6E7684 !important;
   cursor: not-allowed;
   background-color: #F6F7FB !important;

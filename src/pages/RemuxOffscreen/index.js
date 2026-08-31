@@ -12,7 +12,7 @@
  */
 
 const devLog =
-  process.env.SCREENITY_DEV_MODE === "true"
+  process.env.ZVR_RECORDER_DEV_MODE === "true"
     ? (label, data) => console.log("[remux][offscreen]", label, data || "")
     : () => {};
 
@@ -26,7 +26,7 @@ const pending = new Map();
 const ensureWorker = () => {
   if (worker) return worker;
   devLog("spawn-worker");
-  worker = new Worker(chrome.runtime.getURL("remuxworker.bundle.js"));
+  worker = new Worker(chrome.runtime.getURL("zvr-rec-remuxworker.js"));
   worker.onmessage = (e) => {
     const msg = e.data;
     if (!msg || !msg.requestId) return;

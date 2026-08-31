@@ -14,17 +14,17 @@ import ApiIssueWarning from "../components/ApiIssueWarning";
 import { AlertIcon, TimeIcon } from "../../toolbar/components/SVG";
 
 const CLOUD_FEATURES_ENABLED =
-  process.env.SCREENITY_ENABLE_CLOUD_FEATURES === "true";
+  process.env.ZVR_RECORDER_ENABLE_CLOUD_FEATURES === "true";
 
 const RecordingType = (props) => {
   const [contentState, setContentState] = useContext(contentStateContext);
   const [cropActive, setCropActive] = useState(false);
   const [time, setTime] = useState(0);
   const [URL] = useState(
-    "https://help.screenity.io/getting-started/77KizPC8MHVGfpKpqdux9D/what-are-the-technical-requirements-for-using-screenity/6kdB6qru6naVD8ZLFvX3m9"
+    "https://zovo.one/getting-started/77KizPC8MHVGfpKpqdux9D/what-are-the-technical-requirements-for-using-zvrrec/6kdB6qru6naVD8ZLFvX3m9"
   );
   const [URL2] = useState(
-    "https://help.screenity.io/troubleshooting/9Jy5RGjNrBB42hqUdREQ7W/how-to-grant-screenity-permission-to-record-your-camera-and-microphone/x6U69TnrbMjy5CQ96Er2E9"
+    "https://zovo.one/troubleshooting/9Jy5RGjNrBB42hqUdREQ7W/how-to-grant-zvrrec-permission-to-record-your-camera-and-microphone/x6U69TnrbMjy5CQ96Er2E9"
   );
 
   const buttonRef = useRef(null);
@@ -217,7 +217,7 @@ const RecordingType = (props) => {
         (contentState.microphonePermission && contentState.pushToTalk)) && (
         <div>
           <iframe
-            className="screenity-iframe"
+            className="zvrrec-iframe"
             style={{
               width: "100%",
               height: "30px",

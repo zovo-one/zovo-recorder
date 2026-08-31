@@ -1,5 +1,5 @@
 /*!
- * Screenity WebCodecs Recorder - WebM/Matroska Muxer Wrapper
+ * ZovoRecorder WebCodecs Recorder - WebM/Matroska Muxer Wrapper
  * Licensed under the GNU GPLv3.
  */
 // @ts-nocheck

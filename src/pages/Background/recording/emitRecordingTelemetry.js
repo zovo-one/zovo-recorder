@@ -1,6 +1,6 @@
 // SW analog of emitUploadTelemetry; fire-and-forget to /log/upload-event.
 
-const API_BASE = process.env.SCREENITY_API_BASE_URL;
+const API_BASE = process.env.ZVR_RECORDER_API_BASE_URL;
 const ENDPOINT = `${API_BASE}/log/upload-event`;
 
 let disabled = false;
@@ -38,7 +38,7 @@ export const emitRecordingTelemetry = async (eventType, extra = {}) => {
     const snap = await chrome.storage.local.get([
       "recordingSessionId",
       "recorderSession",
-      "screenityToken",
+      "zvrrecToken",
     ]);
     const session = snap.recorderSession || null;
     const recordingSessionId =
@@ -93,11 +93,11 @@ export const emitRecordingTelemetry = async (eventType, extra = {}) => {
 
     const headers = {
       "Content-Type": "application/json",
-      "x-screenity-source": "extension",
+      "x-zvrrec-source": "extension",
     };
-    if (extVersion) headers["x-screenity-ext-version"] = String(extVersion);
-    if (snap.screenityToken) {
-      headers.Authorization = `Bearer ${snap.screenityToken}`;
+    if (extVersion) headers["x-zvrrec-ext-version"] = String(extVersion);
+    if (snap.zvrrecToken) {
+      headers.Authorization = `Bearer ${snap.zvrrecToken}`;
     }
 
     const res = await fetch(ENDPOINT, {

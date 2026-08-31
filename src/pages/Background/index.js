@@ -53,15 +53,15 @@ const clearStaleLocks = async () => {
     const stale = {};
     if (sendingChunks) {
       stale.sendingChunks = false;
-      console.warn("[Screenity][BG] Stale lock found on startup: sendingChunks, clearing");
+      console.warn("[ZovoRecorder][BG] Stale lock found on startup: sendingChunks, clearing");
     }
     if (postStopEditorOpening) {
       stale.postStopEditorOpening = false;
-      console.warn("[Screenity][BG] Stale lock found on startup: postStopEditorOpening, clearing");
+      console.warn("[ZovoRecorder][BG] Stale lock found on startup: postStopEditorOpening, clearing");
     }
     if (postStopEditorOpened) {
       stale.postStopEditorOpened = false;
-      console.warn("[Screenity][BG] Stale lock found on startup: postStopEditorOpened, clearing");
+      console.warn("[ZovoRecorder][BG] Stale lock found on startup: postStopEditorOpened, clearing");
     }
 
     // SW died mid-dispatch or tab closed
@@ -102,7 +102,7 @@ const clearStaleLocks = async () => {
         Date.now() - recordingStartingAt < START_GRACE_MS;
       if (!recorderAlive && startIsFresh) {
         console.warn(
-          "[Screenity][BG] Stale-looking start on startup but within start grace, keeping",
+          "[ZovoRecorder][BG] Stale-looking start on startup but within start grace, keeping",
           { recordingStartingAt, ageMs: Date.now() - recordingStartingAt },
         );
         diagEvent("sw-init-start-grace-kept", {
@@ -130,7 +130,7 @@ const clearStaleLocks = async () => {
         stale.tabRecordedID = null;
         stale.recordingUiTabId = null;
         console.warn(
-          "[Screenity][BG] Stale recording state on startup (no live recorder tab or offscreen doc) - clearing",
+          "[ZovoRecorder][BG] Stale recording state on startup (no live recorder tab or offscreen doc) - clearing",
           { recording, pendingRecording, restarting, recordingTab, offscreen },
         );
       }
@@ -141,18 +141,18 @@ const clearStaleLocks = async () => {
       stale.multiSceneCount = 0;
       stale.multiProjectId = null;
       stale.multiLastSceneId = null;
-      console.warn("[Screenity][BG] Stale multi-mode state found on startup, clearing");
+      console.warn("[ZovoRecorder][BG] Stale multi-mode state found on startup, clearing");
     }
 
     if (region && !recording) {
       stale.region = false;
-      console.warn("[Screenity][BG] Stale region state found on startup, clearing");
+      console.warn("[ZovoRecorder][BG] Stale region state found on startup, clearing");
     }
 
     if (Object.keys(stale).length > 0) {
       await chrome.storage.local.set(stale);
       console.info(
-        "[Screenity][BG] Startup stale locks cleared:",
+        "[ZovoRecorder][BG] Startup stale locks cleared:",
         Object.keys(stale).join(", "),
       );
     }
@@ -177,11 +177,11 @@ const clearStaleLocks = async () => {
       ) {
         if (stayLoggedOut === true) {
           await chrome.storage.local.remove([
-            "screenityToken",
+            "zvrrecToken",
             "logoutPendingTokenClear",
           ]);
           console.info(
-            "[Screenity][BG] Drained deferred logout token-clear on startup",
+            "[ZovoRecorder][BG] Drained deferred logout token-clear on startup",
           );
         } else {
           // re-login during SW death; just clear the marker
@@ -201,10 +201,10 @@ const clearStaleLocks = async () => {
           : "assets/icon-34.png",
       });
     } catch (err) {
-      console.warn("[Screenity][BG] icon reconciliation failed:", err);
+      console.warn("[ZovoRecorder][BG] icon reconciliation failed:", err);
     }
   } catch (err) {
-    console.error("[Screenity][BG] Failed to clear stale startup locks:", err);
+    console.error("[ZovoRecorder][BG] Failed to clear stale startup locks:", err);
   }
 };
 
@@ -264,15 +264,15 @@ const recoverInFlightRecording = async () => {
           : {}),
       });
     } catch (err) {
-      console.warn("[Screenity][BG] redeliver loaded failed:", err);
+      console.warn("[ZovoRecorder][BG] redeliver loaded failed:", err);
     }
     // Both recorder pages dedup streaming-data via streamingDataReceivedAt,
     // so a duplicate push is safe.
     handleGetStreamingData().catch((err) => {
-      console.warn("[Screenity][BG] redeliver streaming-data failed:", err);
+      console.warn("[ZovoRecorder][BG] redeliver streaming-data failed:", err);
     });
   } catch (err) {
-    console.warn("[Screenity][BG] recoverInFlightRecording threw:", err);
+    console.warn("[ZovoRecorder][BG] recoverInFlightRecording threw:", err);
   }
 };
 
@@ -315,12 +315,12 @@ const cleanupOrphanOpfsSessions = async () => {
 
     await Promise.allSettled(orphans.map((id) => destroySessionDir(id)));
     console.info(
-      "[Screenity][BG] Reaped orphan OPFS cloud-chunks sessions:",
+      "[ZovoRecorder][BG] Reaped orphan OPFS cloud-chunks sessions:",
       orphans.length,
     );
   } catch (err) {
     console.warn(
-      "[Screenity][BG] cleanupOrphanOpfsSessions failed:",
+      "[ZovoRecorder][BG] cleanupOrphanOpfsSessions failed:",
       err,
     );
   }
@@ -349,10 +349,10 @@ cleanupOrphanOpfsSessions();
 const CURRENT_MIGRATION_VERSION = "4.3.9-clearStickyTransient3";
 const runUpgradeMigrations = async () => {
   try {
-    const { screenityMigratedForVersion } = await chrome.storage.local.get([
-      "screenityMigratedForVersion",
+    const { zvrrecMigratedForVersion } = await chrome.storage.local.get([
+      "zvrrecMigratedForVersion",
     ]);
-    if (screenityMigratedForVersion === CURRENT_MIGRATION_VERSION) return;
+    if (zvrrecMigratedForVersion === CURRENT_MIGRATION_VERSION) return;
 
     await chrome.storage.local.remove([
       "fastRecorderDisabledForDevice",
@@ -367,13 +367,13 @@ const runUpgradeMigrations = async () => {
       "useWebCodecsRecorder",
     ]);
     await chrome.storage.local.set({
-      screenityMigratedForVersion: CURRENT_MIGRATION_VERSION,
+      zvrrecMigratedForVersion: CURRENT_MIGRATION_VERSION,
     });
     console.info(
-      "[Screenity][BG] Cleared stale 4.3.7 sticky-disable flags on upgrade",
+      "[ZovoRecorder][BG] Cleared stale 4.3.7 sticky-disable flags on upgrade",
     );
   } catch (err) {
-    console.error("[Screenity][BG] Upgrade migration failed:", err);
+    console.error("[ZovoRecorder][BG] Upgrade migration failed:", err);
   }
 };
 runUpgradeMigrations();

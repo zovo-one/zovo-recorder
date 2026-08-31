@@ -39,7 +39,7 @@ export function createMediaRecorder(
   });
   // Carry our own container/mime: recorder.mimeType reflects it too, but the
   // browser can normalize the string.
-  recorder.__screenityContainer = containerForMime(mimeType);
-  recorder.__screenityMime = mimeType;
+  recorder.__zvrrecContainer = containerForMime(mimeType);
+  recorder.__zvrrecMime = mimeType;
   return recorder;
 }

@@ -1,8 +1,8 @@
 import { getCurrentTab, sendMessageTab } from "../tabManagement";
 
-const API_BASE = process.env.SCREENITY_API_BASE_URL;
+const API_BASE = process.env.ZVR_RECORDER_API_BASE_URL;
 const CLOUD_FEATURES_ENABLED =
-  process.env.SCREENITY_ENABLE_CLOUD_FEATURES === "true";
+  process.env.ZVR_RECORDER_ENABLE_CLOUD_FEATURES === "true";
 
 const MAX_REFRESH_DEPTH = 2;
 
@@ -52,20 +52,20 @@ export const loginWithWebsite = async (arg = {}) => {
   // shaves a few ms off every recording start.
   const {
     stayLoggedOut,
-    screenityToken,
+    zvrrecToken,
     lastAuthCheck,
     instantMode,
     wasLoggedIn,
     hasSubscribedBefore,
-    screenityUser,
+    zvrrecUser,
   } = await chrome.storage.local.get([
     "stayLoggedOut",
-    "screenityToken",
+    "zvrrecToken",
     "lastAuthCheck",
     "instantMode",
     "wasLoggedIn",
     "hasSubscribedBefore",
-    "screenityUser",
+    "zvrrecUser",
   ]);
 
   // Only AUTH_SUCCESS from the website clears stayLoggedOut. Implicit paths
@@ -74,12 +74,12 @@ export const loginWithWebsite = async (arg = {}) => {
     return { authenticated: false, instantMode: false };
   }
 
-  if (!screenityToken) {
+  if (!zvrrecToken) {
     // gated on prior signals; force bypasses the gate.
     const hasPriorSignals =
       Boolean(wasLoggedIn) ||
       Boolean(hasSubscribedBefore) ||
-      Boolean(screenityUser);
+      Boolean(zvrrecUser);
     const shouldTryRefresh = force || hasPriorSignals;
     if (shouldTryRefresh && _depth < MAX_REFRESH_DEPTH && API_BASE) {
       try {
@@ -90,7 +90,7 @@ export const loginWithWebsite = async (arg = {}) => {
         if (refreshRes.ok) {
           const { token: newToken } = await refreshRes.json();
           if (newToken) {
-            await chrome.storage.local.set({ screenityToken: newToken });
+            await chrome.storage.local.set({ zvrrecToken: newToken });
             return await loginWithWebsite({ _depth: _depth + 1, force });
           }
         }
@@ -127,18 +127,18 @@ export const loginWithWebsite = async (arg = {}) => {
 
   if (lastAuthCheck && now - lastAuthCheck < FRESH_FOR) {
     const {
-      screenityUser,
+      zvrrecUser,
       isSubscribed,
       proSubscription,
       hasSubscribedBefore,
     } = await chrome.storage.local.get([
-      "screenityUser",
+      "zvrrecUser",
       "isSubscribed",
       "proSubscription",
       "hasSubscribedBefore",
     ]);
 
-    if (screenityUser) {
+    if (zvrrecUser) {
       // single write to avoid multiple onChanged events
       await chrome.storage.local.set({
         onboarding: false,
@@ -156,7 +156,7 @@ export const loginWithWebsite = async (arg = {}) => {
 
       return {
         authenticated: true,
-        user: screenityUser,
+        user: zvrrecUser,
         subscribed: isSubscribed || false,
         proSubscription: proSubscription || null,
         hasSubscribedBefore: !!hasSubscribedBefore,
@@ -172,7 +172,7 @@ export const loginWithWebsite = async (arg = {}) => {
   try {
     const response = await fetchWithTimeout(`${API_BASE}/auth/verify`, {
       headers: {
-        Authorization: `Bearer ${screenityToken}`,
+        Authorization: `Bearer ${zvrrecToken}`,
       },
     });
 
@@ -186,7 +186,7 @@ export const loginWithWebsite = async (arg = {}) => {
       responseData;
 
     await chrome.storage.local.set({
-      screenityUser: user,
+      zvrrecUser: user,
       lastAuthCheck: now,
       isLoggedIn: true,
       wasLoggedIn: false,
@@ -231,7 +231,7 @@ export const loginWithWebsite = async (arg = {}) => {
     };
   } catch (err) {
     console.warn(
-      "[Screenity][Auth] verify failed:",
+      "[ZovoRecorder][Auth] verify failed:",
       err?.name,
       err?.message,
       `tokenInvalid=${isTokenInvalid}`,
@@ -249,7 +249,7 @@ export const loginWithWebsite = async (arg = {}) => {
           );
           if (refreshRes.ok) {
             const { token: newToken } = await refreshRes.json();
-            await chrome.storage.local.set({ screenityToken: newToken });
+            await chrome.storage.local.set({ zvrrecToken: newToken });
             return await loginWithWebsite({ _depth: _depth + 1, force });
           }
         } catch (refreshErr) {
@@ -259,8 +259,8 @@ export const loginWithWebsite = async (arg = {}) => {
 
       // refresh failed; full logout
       await chrome.storage.local.remove([
-        "screenityToken",
-        "screenityUser",
+        "zvrrecToken",
+        "zvrrecUser",
         "lastAuthCheck",
         "isSubscribed",
         "proSubscription",
@@ -274,18 +274,18 @@ export const loginWithWebsite = async (arg = {}) => {
 
     // transient error: keep existing auth state
     const {
-      screenityUser,
+      zvrrecUser,
       isSubscribed,
       proSubscription,
       hasSubscribedBefore,
     } = await chrome.storage.local.get([
-      "screenityUser",
+      "zvrrecUser",
       "isSubscribed",
       "proSubscription",
       "hasSubscribedBefore",
     ]);
 
-    if (screenityUser) {
+    if (zvrrecUser) {
       await chrome.storage.local.set({
         isLoggedIn: true,
         ...(!instantMode
@@ -299,7 +299,7 @@ export const loginWithWebsite = async (arg = {}) => {
 
       return {
         authenticated: true,
-        user: screenityUser,
+        user: zvrrecUser,
         subscribed: !!isSubscribed,
         proSubscription: proSubscription || null,
         hasSubscribedBefore: !!hasSubscribedBefore,

@@ -3,7 +3,7 @@ import React, { useContext, useState } from "react";
 import { ContentStateContext } from "../../context/ContentState"; // Import the ContentState context
 
 const CLOUD_FEATURES_ENABLED =
-  process.env.SCREENITY_ENABLE_CLOUD_FEATURES === "true";
+  process.env.ZVR_RECORDER_ENABLE_CLOUD_FEATURES === "true";
 
 const ProBanner = () => {
   const [contentState, setContentState] = useContext(ContentStateContext); // Access the ContentState context
@@ -36,7 +36,7 @@ const ProBanner = () => {
           </div>
           <div className="pro-banner-description">
             {chrome.i18n.getMessage(descriptionKey) ||
-              "Screenity will always be free, open-source, and ad-free. Pro helps cover cloud & infra costs, & supports development by a solo indie dev! ❤️"}
+              "ZovoRecorder will always be free, open-source, and ad-free. Pro helps cover cloud & infra costs, & supports development by a solo indie dev! ❤️"}
           </div>
         </div>
       </div>

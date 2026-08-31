@@ -22,7 +22,7 @@ const PROBE_FRAMES = 1024;
 const PROBE_CHUNKS = 4;
 
 const devLog =
-  process.env.SCREENITY_DEV_MODE === "true"
+  process.env.ZVR_RECORDER_DEV_MODE === "true"
     ? (label, data) => console.log("[remux][aac]", label, data || "")
     : () => {};
 
@@ -73,7 +73,7 @@ const probeAacEncoder = async () => {
 
 // Machines with native AAC never reach the polyfill, so tests name the worker
 // to exercise it anyway. Nothing in the extension sets this.
-const FORCE_WORKER_NAME = "screenity-force-aac-polyfill";
+const FORCE_WORKER_NAME = "zvrrec-force-aac-polyfill";
 
 // Worker realms only. A page's window.name is attacker-influenceable.
 const isForced = () =>

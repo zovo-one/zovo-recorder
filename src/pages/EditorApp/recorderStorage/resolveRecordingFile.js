@@ -107,11 +107,11 @@ export const downloadResolvedRecording = async (titleBase, onResult) => {
     ? "mp4"
     : "webm";
   const safeBase =
-    (titleBase || "screenity-recording")
+    (titleBase || "zvrrec-recording")
       .replace(/[\\/:*?"<>|]/g, " ")
       .replace(/[\u0000-\u001F\u007F]/g, " ")
       .replace(/\s+/g, " ")
-      .trim() || "screenity-recording";
+      .trim() || "zvrrec-recording";
   const filename = `${safeBase}.${ext}`;
 
   const fallbackViaBackground = async () => {

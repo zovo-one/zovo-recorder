@@ -31,4 +31,7 @@ webpack(config, (err, stats) => {
   }
 
   console.log("Production build completed successfully!");
+  // Some loader versions leave telemetry/cache handles open under Node 20.
+  // The compiler has finished emitting at this point, so close it explicitly.
+  process.exit(0);
 });

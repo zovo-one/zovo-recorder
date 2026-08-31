@@ -10,21 +10,21 @@ import { traceStep, setStartFlowOutcome } from "../../../utils/startFlowTrace";
 import { perfMark } from "../../../utils/perfMarks";
 import { triggerSupportDownload } from "../../../utils/triggerSupportDownload";
 const CLOUD_FEATURES_ENABLED =
-  process.env.SCREENITY_ENABLE_CLOUD_FEATURES === "true";
+  process.env.ZVR_RECORDER_ENABLE_CLOUD_FEATURES === "true";
 
 const getState = () => contentStateRef.current;
 
 export const setupHandlers = () => {
-  if (window.__screenitySetupHandlersRan) return;
-  window.__screenitySetupHandlersRan = true;
+  if (window.__zvrrecSetupHandlersRan) return;
+  window.__zvrrecSetupHandlersRan = true;
   let lastToggleDrawingAt = 0;
   const TOGGLE_DRAWING_COOLDOWN_MS = 400;
   let projectReadySeq = 0;
   // Only bounds the fallback runtime copy. The bridge has no size limit.
   const LOCAL_PLAYBACK_MAX_BYTES = 250 * 1024 * 1024;
-  const BRIDGE_READY = "screenity-local-playback-bridge-ready";
-  const BRIDGE_REQUEST = "screenity-local-playback-bridge-request";
-  const BRIDGE_RESULT = "screenity-local-playback-bridge-result";
+  const BRIDGE_READY = "zvrrec-local-playback-bridge-ready";
+  const BRIDGE_REQUEST = "zvrrec-local-playback-bridge-request";
+  const BRIDGE_RESULT = "zvrrec-local-playback-bridge-result";
   const BRIDGE_ORIGIN = (() => {
     try {
       return new URL(chrome.runtime.getURL("")).origin;
@@ -42,7 +42,7 @@ export const setupHandlers = () => {
   let activeLocalPlaybackSource = null;
   const TRUSTED_APP_ORIGIN = (() => {
     try {
-      const appBase = process.env.SCREENITY_APP_BASE;
+      const appBase = process.env.ZVR_RECORDER_APP_BASE;
       return appBase ? new URL(appBase).origin : null;
     } catch {
       return null;
@@ -60,7 +60,7 @@ export const setupHandlers = () => {
     const targetOrigin = getProjectMessageTargetOrigin();
     if (!targetOrigin) {
       console.warn(
-        "[Screenity][Content] Ignoring project handoff on untrusted origin",
+        "[ZovoRecorder][Content] Ignoring project handoff on untrusted origin",
         {
           source: payload?.source || "unknown",
           pageOrigin: window.location.origin,
@@ -89,7 +89,7 @@ export const setupHandlers = () => {
   const revokeActiveLocalPlaybackSource = (reason = "unknown") => {
     if (activeLocalPlaybackSource?.url) {
       URL.revokeObjectURL(activeLocalPlaybackSource.url);
-      console.info("[Screenity][Content] Revoked local screen playback URL", {
+      console.info("[ZovoRecorder][Content] Revoked local screen playback URL", {
         reason,
         offerId: activeLocalPlaybackSource.offerId || null,
       });
@@ -269,7 +269,7 @@ export const setupHandlers = () => {
       built = await fetchLocalPlaybackBlobViaBridge(offer);
     } catch (bridgeErr) {
       console.warn(
-        "[Screenity][Content] Local playback bridge unavailable, falling back to runtime copy",
+        "[ZovoRecorder][Content] Local playback bridge unavailable, falling back to runtime copy",
         { offerId: offer.offerId, error: bridgeErr?.message || bridgeErr },
       );
       transport = "runtime";
@@ -411,7 +411,7 @@ export const setupHandlers = () => {
       return;
     }
 
-    if (data?.type !== "screenity-local-playback-request") return;
+    if (data?.type !== "zvrrec-local-playback-request") return;
 
     const requestedProjectId = data?.projectId || null;
     const requestedSceneId = data?.sceneId || null;
@@ -428,7 +428,7 @@ export const setupHandlers = () => {
         requestedSceneId !== latestLocalPlaybackSceneId)
     ) {
       postProjectHandoff({
-        source: "screenity-local-playback-response",
+        source: "zvrrec-local-playback-response",
         requestId,
         projectId: requestedProjectId,
         sceneId: requestedSceneId,
@@ -447,14 +447,14 @@ export const setupHandlers = () => {
       offer,
     })
       .then((readySource) => {
-        console.info("[Screenity][Content] Local screen playback used", {
+        console.info("[ZovoRecorder][Content] Local screen playback used", {
           projectId: requestedProjectId,
           sceneId: requestedSceneId || latestLocalPlaybackSceneId || null,
           offerId: offer.offerId,
           bytes: readySource?.size || 0,
         });
         postProjectHandoff({
-          source: "screenity-local-playback-response",
+          source: "zvrrec-local-playback-response",
           requestId,
           projectId: requestedProjectId,
           sceneId: requestedSceneId || latestLocalPlaybackSceneId || null,
@@ -480,7 +480,7 @@ export const setupHandlers = () => {
       .catch((err) => {
         const reason = err?.message || "local-playback-build-failed";
         console.warn(
-          "[Screenity][Content] Local screen playback fallback",
+          "[ZovoRecorder][Content] Local screen playback fallback",
           {
             projectId: requestedProjectId,
             sceneId: requestedSceneId || latestLocalPlaybackSceneId || null,
@@ -495,7 +495,7 @@ export const setupHandlers = () => {
           reason,
         });
         postProjectHandoff({
-          source: "screenity-local-playback-response",
+          source: "zvrrec-local-playback-response",
           requestId,
           projectId: requestedProjectId,
           sceneId: requestedSceneId || latestLocalPlaybackSceneId || null,
@@ -516,9 +516,9 @@ export const setupHandlers = () => {
     revokeActiveLocalPlaybackSource("content-beforeunload");
   });
 
-  if (!window.__screenityHandlersInitialized) {
+  if (!window.__zvrrecHandlersInitialized) {
     messageRouter();
-    window.__screenityHandlersInitialized = true;
+    window.__zvrrecHandlersInitialized = true;
   }
 
   // Bridge from BG to the editor page: BG forwards a scene-create payload
@@ -846,7 +846,7 @@ export const setupHandlers = () => {
       state.recording ||
       state.pipEnded
     ) {
-      console.warn("[Screenity][Content] start-stream BLOCKED by guard state:", {
+      console.warn("[ZovoRecorder][Content] start-stream BLOCKED by guard state:", {
         preparingRecording: state.preparingRecording,
         pendingRecording: state.pendingRecording,
         recording: state.recording,
@@ -1088,28 +1088,26 @@ export const setupHandlers = () => {
         fastRecorder: fastRecorderData,
       };
 
-      // Hand the zip step off to BG (see Background `make-zip` handler).
-      // No JSZip in content; content collects fields, BG runs JSZip,
-      // content downloads the resulting ArrayBuffer.
-      const filename = "screenity-troubleshooting.zip";
+      // Hand diagnostic bundle assembly to the background worker.
+      const filename = "zvrrec-troubleshooting.zip";
       const resp = await chrome.runtime.sendMessage({
         type: "make-zip",
         files: { "troubleshooting.json": JSON.stringify(data) },
         filename,
       });
       if (!resp?.ok || typeof resp.base64 !== "string") {
-        console.warn("[Screenity] troubleshooting zip failed:", resp?.error);
+        console.warn("[ZovoRecorder] troubleshooting zip failed:", resp?.error);
         return;
       }
       const bin = atob(resp.base64);
       const bytes = new Uint8Array(bin.length);
       for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-      const blob = new Blob([bytes], { type: "application/zip" });
+      const blob = new Blob([bytes], { type: resp.mime || "application/json" });
       const url = window.URL.createObjectURL(blob);
 
       const a = document.createElement("a");
       a.href = url;
-      a.download = filename;
+      a.download = resp.filename || filename.replace(/\.zip$/i, ".json");
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -1226,8 +1224,8 @@ export const setupHandlers = () => {
     }));
     setTimer(0);
     try {
-      const elements = document.querySelectorAll(".screenity-blur");
-      elements.forEach((el) => el.classList.remove("screenity-blur"));
+      const elements = document.querySelectorAll(".zvrrec-blur");
+      elements.forEach((el) => el.classList.remove("zvrrec-blur"));
     } catch {}
     updateFromStorage(false, message.senderId);
 
@@ -1338,7 +1336,7 @@ export const setupHandlers = () => {
       setContentState((prev) => ({
         ...prev,
         isLoggedIn: false,
-        screenityUser: null,
+        zvrrecUser: null,
         isSubscribed: false,
         proSubscription: null,
         showExtension: true,
@@ -1355,7 +1353,7 @@ export const setupHandlers = () => {
     setContentState((prev) => ({
       ...prev,
       isLoggedIn: result.authenticated,
-      screenityUser: result.user,
+      zvrrecUser: result.user,
       isSubscribed: result.subscribed,
       proSubscription: result.proSubscription,
       ...(result.authenticated ? { wasLoggedIn: false } : {}),
@@ -1404,7 +1402,7 @@ export const setupHandlers = () => {
     const projectId = message?.projectId || null;
     if (!projectId) {
       console.warn(
-        "[Screenity][Content] Ignoring update-project-ready without projectId",
+        "[ZovoRecorder][Content] Ignoring update-project-ready without projectId",
       );
       return;
     }
@@ -1459,7 +1457,7 @@ export const setupHandlers = () => {
     });
 
     if (posted) {
-      window.__screenityLastProjectReady = {
+      window.__zvrrecLastProjectReady = {
         projectId,
         sceneId: message.sceneId || null,
         handoffAt,
@@ -1472,7 +1470,7 @@ export const setupHandlers = () => {
     const capturedOffer = latestLocalPlaybackOffer;
     if (posted && capturedOffer?.offerId) {
       const capturedSceneId = message.sceneId || null;
-      console.info("[Screenity][Content] Local screen playback offered", {
+      console.info("[ZovoRecorder][Content] Local screen playback offered", {
         projectId,
         sceneId: capturedSceneId,
         offerId: capturedOffer.offerId,
@@ -1485,7 +1483,7 @@ export const setupHandlers = () => {
         offer: capturedOffer,
       })
         .then((readySource) => {
-          console.info("[Screenity][Content] Local screen playback ready", {
+          console.info("[ZovoRecorder][Content] Local screen playback ready", {
             projectId,
             sceneId: capturedSceneId,
             offerId: capturedOffer.offerId,
@@ -1500,7 +1498,7 @@ export const setupHandlers = () => {
         })
         .catch((err) => {
           const reason = err?.message || "local-playback-build-failed";
-          console.warn("[Screenity][Content] Local screen playback fallback", {
+          console.warn("[ZovoRecorder][Content] Local screen playback fallback", {
             projectId,
             sceneId: capturedSceneId,
             offerId: capturedOffer.offerId,

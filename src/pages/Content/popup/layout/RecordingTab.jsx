@@ -48,7 +48,7 @@ const RecordingTab = (props) => {
     // facebook.com and similar: Permissions-Policy won't delegate
     // display-capture to our region iframe, so region capture can't start.
     const isBlocked =
-      currentUrl.includes(process.env.SCREENITY_APP_BASE) ||
+      currentUrl.includes(process.env.ZVR_RECORDER_APP_BASE) ||
       contentState.siteDisplayCaptureBlocked === true;
 
     setTabRecordingDisabled(isBlocked);
@@ -222,7 +222,7 @@ const RecordingTab = (props) => {
             <TooltipWrap
               content={
                 !contentState.isLoggedIn
-                  ? "Record multiple scenes with Screenity Pro"
+                  ? "Record multiple scenes with ZovoRecorder Pro"
                   : "Record scenes one after another"
               }
               side={"bottom"}
@@ -269,7 +269,7 @@ const RecordingTab = (props) => {
                         cursor: "pointer",
                         width: "28px",
                         height: "28px",
-                        background: "#3080F8",
+                        background: "#635BFF",
                         borderRadius: "50%",
                         display: "flex",
                         alignItems: "center",
